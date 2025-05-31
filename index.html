@@ -1,115 +1,887 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leyes de los Gases - Inicio</title>
+    <title>Leyes de los Gases Interactivas - Alberto Albesa -2025</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* Puedes añadir aquí estilos personalizados si los necesitas */
-        @font-face {
-          font-family: 'LucideIcons';
-          src: url(https://cdn.jsdelivr.net/npm/lucide-static@latest/font/Lucide.ttf) format('truetype');
-        }
-        .lucide {
-          font-family: 'LucideIcons';
-          font-size: 1.5rem; /* Adjust icon size */
-          line-height: 1;
-        }
-        /* Animación sutil para las tarjetas */
-        .card-hover-effect {
-            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
-        }
-        .card-hover-effect:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        }
+      @font-face {
+        font-family: 'LucideIcons';
+        src: url(https://cdn.jsdelivr.net/npm/lucide-static@latest/font/Lucide.ttf) format('truetype');
+      }
+      .lucide {
+        font-family: 'LucideIcons';
+        font-size: 1.5rem; /* Adjust icon size */
+        line-height: 1;
+      }
+      /* Custom styles for particle visualization */
+      .gas-container {
+        position: relative;
+        border: 2px solid #94a3b8; /* slate-400 */
+        overflow: hidden;
+        /* background-color will be set dynamically by JS */
+        border-radius: 0.5rem; /* rounded-lg */
+        min-height: 200px;
+        height: 250px; /* Fixed height for consistency */
+        width: 100%;
+        transition: background-color 0.5s ease; /* Smooth color transition */
+      }
+      .particle {
+        position: absolute;
+        width: 6px; /* Smaller particles */
+        height: 6px;
+        background-color: #1e3a8a; /* darker blue for better contrast on light backgrounds */
+        border-radius: 50%;
+        will-change: transform; /* Optimize animation */
+      }
+       .piston {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 20px;
+        background-color: #64748b; /* slate-500 */
+        border-top: 2px solid #475569; /* slate-600 */
+        transition: height 0.3s ease-in-out;
+        z-index: 10; /* Ensure piston is above particles if needed */
+      }
+      /* Style sliders */
+      input[type="range"] {
+        appearance: none;
+        width: 100%;
+        height: 8px;
+        background: #d1d5db; /* gray-300 */
+        border-radius: 5px;
+        outline: none;
+        opacity: 0.7;
+        transition: opacity .2s;
+        cursor: pointer;
+      }
+      input[type="range"]:hover {
+        opacity: 1;
+      }
+      input[type="range"]::-webkit-slider-thumb {
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        background: #3b82f6; /* blue-500 */
+        border-radius: 50%;
+        cursor: pointer;
+      }
+      input[type="range"]::-moz-range-thumb {
+        width: 20px;
+        height: 20px;
+        background: #3b82f6; /* blue-500 */
+        border-radius: 50%;
+        cursor: pointer;
+        border: none;
+      }
+      /* Input number styling */
+       input[type="number"] {
+        width: 70px;
+        padding: 4px 8px;
+        border: 1px solid #d1d5db; /* gray-300 */
+        border-radius: 0.375rem; /* rounded-md */
+        font-size: 0.875rem; /* text-sm */
+        text-align: right;
+      }
+      .chart-container {
+        position: relative;
+        height: 250px; /* Match gas container height */
+        width: 100%;
+      }
+       /* Read-only value display style */
+      .value-display {
+          font-family: monospace;
+          font-size: 0.875rem; /* text-sm */
+          background-color: #f1f5f9; /* slate-100 */
+          padding: 0.25rem 0.5rem; /* px-2 py-1 */
+          border-radius: 0.25rem; /* rounded */
+          width: 70px;
+          text-align: right;
+          display: inline-block; /* To control width */
+          height: 34px; /* Match input height */
+          line-height: 24px; /* Adjust for vertical centering */
+          border: 1px solid #e2e8f0; /* slate-200 */
+      }
+       .value-display-full { /* For Charles/Avogadro Volume */
+          font-family: monospace;
+          font-size: 0.875rem; /* text-sm */
+          background-color: #f1f5f9; /* slate-100 */
+          padding: 0.25rem 0.5rem; /* px-2 py-1 */
+          border-radius: 0.25rem; /* rounded */
+          width: 100%;
+          text-align: center;
+          height: 34px; /* Match input height */
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border: 1px solid #e2e8f0; /* slate-200 */
+      }
+
     </style>
 </head>
-<body class="bg-slate-100 font-sans text-slate-800 min-h-screen flex flex-col">
+<body class="bg-slate-50 font-sans text-slate-800 p-4 md:p-8">
 
-    <header class="bg-blue-600 text-white shadow-md">
-        <div class="container mx-auto px-4 md:px-8 py-6 text-center">
-            <h1 class="text-3xl md:text-4xl font-bold mb-2">Explorador Interactivo de las Leyes de los Gases</h1>
-            <p class="text-lg text-blue-100">Una herramienta educativa por Alberto Albesa - 2025</p>
-        </div>
+    <header class="text-center mb-8">
+        <h1 class="text-3xl md:text-4xl font-bold text-blue-600 mb-2">Explorador Interactivo de las Leyes de los Gases v4</h1>
+        <p class="text-lg text-slate-600">Visualiza y grafica las relaciones P, V, T, n con retroalimentación de color.</p>
     </header>
 
-    <main class="container mx-auto p-4 md:p-8 flex-grow">
-        <section class="text-center mb-10">
-            <h2 class="text-2xl font-semibold text-slate-700 mb-3">Bienvenido al Explorador de Leyes de los Gases</h2>
-            <p class="text-md text-slate-600 max-w-2xl mx-auto">
-                Selecciona una de las leyes a continuación para visualizar sus principios fundamentales, experimentar con simulaciones interactivas y observar cómo se relacionan las variables de presión, volumen, temperatura y cantidad de gas.
-            </p>
+    <main class="space-y-12">
+
+        <section id="boyle" class="bg-white p-6 rounded-xl shadow-lg border border-slate-200">
+            <h2 class="text-2xl font-semibold text-blue-700 mb-4 flex items-center">
+                <span class="lucide mr-2"></span> Ley de Boyle (P vs V)
+            </h2>
+            <p class="mb-4 text-slate-700">A <strong class="font-semibold">temperatura (T)</strong> y <strong class="font-semibold">cantidad de gas (n)</strong> constantes, la presión (P) es inversamente proporcional al volumen (V). <strong class="font-semibold">(P₁V₁ = P₂V₂)</strong></p>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                <div class="space-y-4 lg:col-span-1">
+                    <h3 class="font-semibold text-lg text-slate-800 border-b pb-1 mb-3">Variables</h3>
+                    <div>
+                        <label for="boyle-volume" class="block text-sm font-medium text-slate-700 mb-1">Volumen (V)</label>
+                         <div class="flex items-center space-x-2">
+                            <input type="range" id="boyle-volume" min="1" max="10" step="0.1" value="4.0" class="flex-grow">
+                            <span id="boyle-volume-value" class="value-display">4.0 L</span>
+                        </div>
+                         <p class="text-xs text-slate-500 mt-1">Ajusta el volumen para ver cómo cambia la presión.</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Presión (P) <span class="text-xs italic text-slate-500">(Calculada)</span></label>
+                         <div class="flex items-center space-x-2">
+
+                            <span id="boyle-pressure-calculated-value" class="value-display w-full text-center">1.0 atm</span>
+                        </div>
+                    </div>
+
+                     <h3 class="font-semibold text-lg text-slate-800 border-b pb-1 mb-3 pt-4">Constantes (Ajustables)</h3>
+                     <div>
+                        <label for="boyle-temp" class="block text-sm font-medium text-slate-700 mb-1">Temperatura (T)</label>
+                        <div class="flex items-center space-x-2">
+                            <input type="number" id="boyle-temp" min="50" max="1000" step="10" value="300">
+                            <span class="text-sm text-slate-600">K</span>
+                        </div>
+                    </div>
+                     <div>
+                        <label for="boyle-moles" class="block text-sm font-medium text-slate-700 mb-1">Moles (n)</label>
+                        <div class="flex items-center space-x-2">
+                            <input type="number" id="boyle-moles" min="0.1" max="5" step="0.1" value="0.16">
+                            <span class="text-sm text-slate-600">mol</span>
+                        </div>
+                    </div>
+                     <div class="text-center mt-4 p-3 bg-blue-50 rounded-md border border-blue-200">
+                        <span class="font-semibold text-blue-800">Constante (P × V ≈ nRT):</span>
+                        <span id="boyle-constant" class="font-mono ml-2 text-blue-900">4.00</span>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="font-semibold text-lg text-slate-800 mb-2 text-center">Simulación</h3>
+                        <div id="boyle-container" class="gas-container relative h-[250px]">
+                            <div id="boyle-piston" class="piston" style="height: 60%;"></div>
+                        </div>
+                    </div>
+                     <div>
+                        <h3 class="font-semibold text-lg text-slate-800 mb-2 text-center">Gráfico P vs V</h3>
+                        <div class="chart-container">
+                            <canvas id="boyle-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </section>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
-            <a href="boyle.html" class="card-hover-effect bg-white p-6 rounded-xl shadow-lg border border-slate-200 flex flex-col justify-between">
-                <div>
-                    <h3 class="text-2xl font-semibold text-blue-700 mb-3 flex items-center">
-                        <span class="lucide mr-3 text-blue-500">minimize-2</span> Ley de Boyle
-                    </h3>
-                    <p class="text-slate-600 mb-4">
-                        Explora la relación inversa entre la <strong class="font-medium">Presión (P)</strong> y el <strong class="font-medium">Volumen (V)</strong> de un gas a temperatura y cantidad de gas constantes.
-                        <br><em class="text-sm">(P₁V₁ = P₂V₂)</em>
-                    </p>
-                </div>
-                <span class="mt-4 inline-block bg-blue-500 text-white text-center font-semibold px-6 py-2 rounded-md hover:bg-blue-600 transition-colors duration-300">
-                    Ir a Ley de Boyle &rarr;
-                </span>
-            </a>
+        <section id="charles" class="bg-white p-6 rounded-xl shadow-lg border border-slate-200">
+            <h2 class="text-2xl font-semibold text-blue-700 mb-4 flex items-center">
+                <span class="lucide mr-2"></span> Ley de Charles (V vs T)
+            </h2>
+            <p class="mb-4 text-slate-700">A <strong class="font-semibold">presión (P)</strong> y <strong class="font-semibold">cantidad de gas (n)</strong> constantes, el volumen (V) es directamente proporcional a la temperatura absoluta (T). <strong class="font-semibold">(V₁/T₁ = V₂/T₂)</strong></p>
 
-            <a href="charles.html" class="card-hover-effect bg-white p-6 rounded-xl shadow-lg border border-slate-200 flex flex-col justify-between">
-                <div>
-                    <h3 class="text-2xl font-semibold text-green-700 mb-3 flex items-center">
-                        <span class="lucide mr-3 text-green-500">thermometer-sun</span> Ley de Charles
-                    </h3>
-                    <p class="text-slate-600 mb-4">
-                        Descubre cómo el <strong class="font-medium">Volumen (V)</strong> de un gas es directamente proporcional a su <strong class="font-medium">Temperatura (T)</strong> absoluta, manteniendo presión y cantidad de gas constantes.
-                        <br><em class="text-sm">(V₁/T₁ = V₂/T₂)</em>
-                    </p>
+             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                <div class="space-y-4 lg:col-span-1">
+                    <h3 class="font-semibold text-lg text-slate-800 border-b pb-1 mb-3">Variables</h3>
+                    <div>
+                        <label for="charles-temp" class="block text-sm font-medium text-slate-700 mb-1">Temperatura (T)</label>
+                         <div class="flex items-center space-x-2">
+                            <input type="range" id="charles-temp" min="50" max="1000" step="10" value="300" class="flex-grow">
+                            <span id="charles-temp-value" class="value-display">300 K</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Volumen (V) <span class="text-xs italic text-slate-500">(Calculado)</span></label>
+                         <div class="flex items-center space-x-2">
+                            <span id="charles-volume-value" class="value-display-full">3.9 L</span>
+                        </div>
+                    </div>
+                     <h3 class="font-semibold text-lg text-slate-800 border-b pb-1 mb-3 pt-4">Constantes (Ajustables)</h3>
+                     <div>
+                        <label for="charles-pressure" class="block text-sm font-medium text-slate-700 mb-1">Presión (P)</label>
+                        <div class="flex items-center space-x-2">
+                            <input type="number" id="charles-pressure" min="0.1" max="10" step="0.1" value="1.0">
+                            <span class="text-sm text-slate-600">atm</span>
+                        </div>
+                    </div>
+                     <div>
+                        <label for="charles-moles" class="block text-sm font-medium text-slate-700 mb-1">Moles (n)</label>
+                        <div class="flex items-center space-x-2">
+                            <input type="number" id="charles-moles" min="0.1" max="5" step="0.1" value="0.16">
+                            <span class="text-sm text-slate-600">mol</span>
+                        </div>
+                    </div>
+                     <div class="text-center mt-4 p-3 bg-blue-50 rounded-md border border-blue-200">
+                        <span class="font-semibold text-blue-800">Constante (V / T ≈ nR/P):</span>
+                        <span id="charles-constant" class="font-mono ml-2 text-blue-900">0.0131</span>
+                    </div>
                 </div>
-                <span class="mt-4 inline-block bg-green-500 text-white text-center font-semibold px-6 py-2 rounded-md hover:bg-green-600 transition-colors duration-300">
-                    Ir a Ley de Charles &rarr;
-                </span>
-            </a>
 
-            <a href="avogadro.html" class="card-hover-effect bg-white p-6 rounded-xl shadow-lg border border-slate-200 flex flex-col justify-between">
-                <div>
-                    <h3 class="text-2xl font-semibold text-purple-700 mb-3 flex items-center">
-                        <span class="lucide mr-3 text-purple-500">atom</span> Ley de Avogadro
-                    </h3>
-                    <p class="text-slate-600 mb-4">
-                        Investiga la relación directa entre el <strong class="font-medium">Volumen (V)</strong> y la <strong class="font-medium">Cantidad de gas (n)</strong>, a presión y temperatura constantes.
-                        <br><em class="text-sm">(V₁/n₁ = V₂/n₂)</em>
-                    </p>
+                <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+                     <div>
+                        <h3 class="font-semibold text-lg text-slate-800 mb-2 text-center">Simulación</h3>
+                        <div id="charles-container" class="gas-container relative h-[250px]">
+                            <div id="charles-piston" class="piston" style="height: 50%;"></div>
+                           
+                        </div>
+                    </div>
+                     <div>
+                        <h3 class="font-semibold text-lg text-slate-800 mb-2 text-center">Gráfico V vs T</h3>
+                        <div class="chart-container">
+                            <canvas id="charles-chart"></canvas>
+                        </div>
+                    </div>
                 </div>
-                <span class="mt-4 inline-block bg-purple-500 text-white text-center font-semibold px-6 py-2 rounded-md hover:bg-purple-600 transition-colors duration-300">
-                    Ir a Ley de Avogadro &rarr;
-                </span>
-            </a>
+            </div>
+        </section>
 
-            <a href="ideal.html" class="card-hover-effect bg-white p-6 rounded-xl shadow-lg border border-slate-200 flex flex-col justify-between">
-                <div>
-                    <h3 class="text-2xl font-semibold text-indigo-700 mb-3 flex items-center">
-                        <span class="lucide mr-3 text-indigo-500">combine</span> Ley del Gas Ideal
-                    </h3>
-                    <p class="text-slate-600 mb-4">
-                        Comprende cómo se combinan las leyes de Boyle, Charles y Avogadro en la ecuación fundamental <strong class="font-medium">PV = nRT</strong>.
-                    </p>
+        <section id="avogadro" class="bg-white p-6 rounded-xl shadow-lg border border-slate-200">
+            <h2 class="text-2xl font-semibold text-blue-700 mb-4 flex items-center">
+                <span class="lucide mr-2"></span> Ley de Avogadro (V vs n)
+            </h2>
+            <p class="mb-4 text-slate-700">A <strong class="font-semibold">presión (P)</strong> y <strong class="font-semibold">temperatura (T)</strong> constantes, el volumen (V) es directamente proporcional a la cantidad de gas (n). <strong class="font-semibold">(V₁/n₁ = V₂/n₂)</strong></p>
+
+             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                <div class="space-y-4 lg:col-span-1">
+                     <h3 class="font-semibold text-lg text-slate-800 border-b pb-1 mb-3">Variables</h3>
+                    <div>
+                        <label for="avogadro-moles-slider" class="block text-sm font-medium text-slate-700 mb-1">Cantidad de Gas (n)</label>
+                         <div class="flex items-center space-x-2">
+                            <input type="range" id="avogadro-moles-slider" min="0.1" max="2" step="0.05" value="0.5" class="flex-grow">
+                            <span id="avogadro-moles-value" class="value-display">0.50 mol</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Volumen (V) <span class="text-xs italic text-slate-500">(Calculado)</span></label>
+                         <div class="flex items-center space-x-2">
+                            <span id="avogadro-volume-value" class="value-display-full">11.2 L</span>
+                        </div>
+                    </div>
+                     <h3 class="font-semibold text-lg text-slate-800 border-b pb-1 mb-3 pt-4">Constantes (Ajustables)</h3>
+                     <div>
+                        <label for="avogadro-pressure" class="block text-sm font-medium text-slate-700 mb-1">Presión (P)</label>
+                        <div class="flex items-center space-x-2">
+                            <input type="number" id="avogadro-pressure" min="0.1" max="10" step="0.1" value="1.0">
+                            <span class="text-sm text-slate-600">atm</span>
+                        </div>
+                    </div>
+                     <div>
+                        <label for="avogadro-temp" class="block text-sm font-medium text-slate-700 mb-1">Temperatura (T)</label>
+                        <div class="flex items-center space-x-2">
+                            <input type="number" id="avogadro-temp" min="50" max="1000" step="10" value="273">
+                            <span class="text-sm text-slate-600">K</span>
+                        </div>
+                    </div>
+                     <div class="text-center mt-4 p-3 bg-blue-50 rounded-md border border-blue-200">
+                        <span class="font-semibold text-blue-800">Constante (V / n ≈ RT/P):</span>
+                        <span id="avogadro-constant" class="font-mono ml-2 text-blue-900">22.4</span> L/mol
+                    </div>
                 </div>
-                <span class="mt-4 inline-block bg-indigo-500 text-white text-center font-semibold px-6 py-2 rounded-md hover:bg-indigo-600 transition-colors duration-300">
-                    Ir a Gas Ideal &rarr;
-                </span>
-            </a>
-        </div>
+
+                 <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+                     <div>
+                        <h3 class="font-semibold text-lg text-slate-800 mb-2 text-center">Simulación</h3>
+                        <div id="avogadro-container" class="gas-container relative h-[250px]">
+                            <div id="avogadro-piston" class="piston" style="height: 50%;"></div>
+                        </div>
+                    </div>
+                     <div>
+                        <h3 class="font-semibold text-lg text-slate-800 mb-2 text-center">Gráfico V vs n</h3>
+                        <div class="chart-container">
+                            <canvas id="avogadro-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="ideal-gas" class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl shadow-lg border border-blue-200">
+            <h2 class="text-2xl font-semibold text-indigo-700 mb-4 flex items-center">
+                <span class="lucide mr-2">combine</span> Ley del Gas Ideal (PV = nRT)
+            </h2>
+            <p class="mb-4 text-slate-700">Combina las leyes de Boyle, Charles y Avogadro: <strong class="font-semibold">PV = nRT</strong>. R es la constante de los gases ideales.</p>
+            <p class="text-slate-600">Usa los controles y gráficos anteriores para explorar cómo las variables se relacionan cuando otras se mantienen constantes. Cambia las constantes para ver cómo afectan las curvas.</p>
+             <div class="mt-4 text-sm text-slate-500">
+                <p><strong class="font-semibold">R (Constante de los gases):</strong> 0.0821 L·atm/(mol·K)</p>
+            </div>
+        </section>
+
     </main>
 
-    <footer class="text-center py-6 bg-slate-200 text-sm text-slate-600 border-t border-slate-300">
-        <p>&copy; 2025 Alberto Albesa. Las simulaciones son con fines educativos.</p>
-        <p>Construido con Tailwind CSS y Chart.js.</p>
+    <footer class="text-center mt-12 text-sm text-slate-500">
+        <p>Simulaciones y gráficos con fines educativos.</p>
     </footer>
+
+    <script>
+        // --- Constants and Global Config ---
+        const R = 0.0821; // Gas constant L.atm/(mol.K)
+        const particleCountFactor = 70; // Visual particles per mole
+        const animationSpeedMultiplier = 3; // Visual speed multiplier
+        const TEMP_MIN_COLOR = 100; // K - Temp for full blue
+        const TEMP_MAX_COLOR = 800; // K - Temp for full red
+        const TEMP_NEUTRAL = 300; // K - Temp for neutral color (white-ish)
+
+        // --- DOM Elements ---
+        // Boyle
+        // REMOVED: boylePressureSlider
+        const boyleVolumeSlider = document.getElementById('boyle-volume');
+        // REMOVED: boylePressureValue
+        const boyleVolumeValue = document.getElementById('boyle-volume-value');
+        const boylePressureCalculatedValue = document.getElementById('boyle-pressure-calculated-value'); // ADDED
+        const boyleTempInput = document.getElementById('boyle-temp');
+        const boyleMolesInput = document.getElementById('boyle-moles');
+        const boyleConstantDisplay = document.getElementById('boyle-constant');
+        const boyleContainer = document.getElementById('boyle-container');
+        const boylePiston = document.getElementById('boyle-piston');
+        const boyleChartCtx = document.getElementById('boyle-chart').getContext('2d');
+
+        // Charles (No changes needed here for Boyle simplification)
+        const charlesTempSlider = document.getElementById('charles-temp');
+        const charlesTempValue = document.getElementById('charles-temp-value');
+        const charlesVolumeValue = document.getElementById('charles-volume-value');
+        const charlesPressureInput = document.getElementById('charles-pressure');
+        const charlesMolesInput = document.getElementById('charles-moles');
+        const charlesConstantDisplay = document.getElementById('charles-constant');
+        const charlesContainer = document.getElementById('charles-container');
+        const charlesPiston = document.getElementById('charles-piston');
+        const charlesChartCtx = document.getElementById('charles-chart').getContext('2d');
+
+        // Avogadro (No changes needed here for Boyle simplification)
+        const avogadroMolesSlider = document.getElementById('avogadro-moles-slider');
+        const avogadroMolesValue = document.getElementById('avogadro-moles-value');
+        const avogadroVolumeValue = document.getElementById('avogadro-volume-value');
+        const avogadroPressureInput = document.getElementById('avogadro-pressure');
+        const avogadroTempInput = document.getElementById('avogadro-temp');
+        const avogadroConstantDisplay = document.getElementById('avogadro-constant');
+        const avogadroContainer = document.getElementById('avogadro-container');
+        const avogadroPiston = document.getElementById('avogadro-piston');
+        const avogadroChartCtx = document.getElementById('avogadro-chart').getContext('2d');
+
+
+        // --- Chart Instances ---
+        let boyleChart, charlesChart, avogadroChart;
+
+        // --- State Variables ---
+        let state = {
+            boyle: {},
+            charles: {},
+            avogadro: {}
+        };
+
+        // --- Particle Animation ---
+        let animationFrameId = null;
+        const particles = { boyle: [], charles: [], avogadro: [] };
+
+        // createParticle, updateParticles, animateParticles (Identical to v3 - omitted for brevity)
+         function createParticle(containerId) {
+            const container = document.getElementById(`${containerId}-container`);
+            if (!container) return null;
+            const particle = document.createElement('div');
+            particle.classList.add('particle');
+            const piston = document.getElementById(`${containerId}-piston`);
+            const pistonHeightPercent = parseFloat(piston.style.height) || 0;
+            const availableHeightRatio = Math.max(0, 1 - (pistonHeightPercent / 100));
+
+            particle.style.left = `${Math.random() * 98 + 1}%`;
+            particle.style.top = `${Math.random() * Math.max(0, (availableHeightRatio * 100 - 2)) + 1}%`;
+
+            particle.vx = (Math.random() - 0.5) * 0.5;
+            particle.vy = (Math.random() - 0.5) * 0.5;
+            container.appendChild(particle);
+            return particle;
+        }
+
+        function updateParticles(containerId, n, T) {
+             const container = document.getElementById(`${containerId}-container`);
+             if (!container) return;
+             const currentParticles = particles[containerId];
+             const targetParticleCount = Math.max(5, Math.round(n * particleCountFactor));
+
+            while (currentParticles.length < targetParticleCount) {
+                const newParticle = createParticle(containerId);
+                if (newParticle) currentParticles.push(newParticle);
+                else break;
+            }
+            while (currentParticles.length > targetParticleCount) {
+                const removedParticle = currentParticles.pop();
+                 if (removedParticle && removedParticle.parentNode) {
+                     removedParticle.parentNode.removeChild(removedParticle);
+                 }
+            }
+
+            const speedFactor = Math.max(0.1, Math.sqrt(T / 100));
+
+            currentParticles.forEach(p => {
+                 if (!p) return;
+                 const baseMagnitude = Math.sqrt(p.vx * p.vx + p.vy * p.vy) || 0.1;
+                 p.vx = (p.vx / baseMagnitude) * speedFactor * (Math.random() * 0.4 + 0.8);
+                 p.vy = (p.vy / baseMagnitude) * speedFactor * (Math.random() * 0.4 + 0.8);
+            });
+
+            if (!animationFrameId) {
+                animateParticles();
+            }
+        }
+
+        function animateParticles() {
+             Object.keys(particles).forEach(containerId => {
+                const container = document.getElementById(`${containerId}-container`);
+                const currentParticles = particles[containerId];
+                if (!container || !currentParticles || currentParticles.length === 0) return;
+
+                const containerWidth = container.clientWidth;
+                const containerHeight = container.clientHeight;
+                const piston = document.getElementById(`${containerId}-piston`);
+                const pistonHeightPercent = parseFloat(piston.style.height) || 0;
+                const availableHeightPx = Math.max(0, containerHeight * (1 - pistonHeightPercent / 100));
+                const particleSize = 6;
+
+                currentParticles.forEach(particle => {
+                     if (!particle) return;
+
+                    let xPercent = parseFloat(particle.style.left);
+                    let yPercent = parseFloat(particle.style.top);
+                    let vx = particle.vx;
+                    let vy = particle.vy;
+
+                    let nextXpx = (xPercent / 100) * containerWidth + vx * animationSpeedMultiplier;
+                    let nextYpx = (yPercent / 100) * containerHeight + vy * animationSpeedMultiplier;
+
+                    if (nextXpx <= 0 || nextXpx >= containerWidth - particleSize) {
+                        vx = -vx;
+                        nextXpx = Math.max(0, Math.min(containerWidth - particleSize, nextXpx));
+                        particle.vx = vx * (Math.random() * 0.1 + 0.95);
+                    }
+
+                    if (nextYpx <= 0) {
+                        vy = -vy;
+                        nextYpx = 0;
+                        particle.vy = vy * (Math.random() * 0.1 + 0.95);
+                    } else if (nextYpx >= availableHeightPx - particleSize) {
+                        vy = -vy;
+                        nextYpx = Math.max(0, availableHeightPx - particleSize);
+                        particle.vy = vy * (Math.random() * 0.1 + 0.95);
+                    }
+
+                    if (!isNaN(nextXpx) && containerWidth > 0) {
+                       particle.style.left = `${Math.max(0, Math.min(100, (nextXpx / containerWidth) * 100))}%`;
+                    }
+                     if (!isNaN(nextYpx) && containerHeight > 0) {
+                        particle.style.top = `${Math.max(0, Math.min(100, (nextYpx / containerHeight) * 100))}%`;
+                    }
+                    particle.vx = vx;
+                    particle.vy = vy;
+                });
+            });
+
+            animationFrameId = requestAnimationFrame(animateParticles);
+        }
+
+
+        // --- Temperature to Color Mapping ---
+        // getTemperatureColor (Identical to v3 - omitted for brevity)
+         function getTemperatureColor(tempK) {
+            const temp = Math.max(TEMP_MIN_COLOR, Math.min(TEMP_MAX_COLOR, tempK));
+            let hue, saturation, lightness;
+
+            saturation = 70;
+            lightness = 75;
+
+             if (temp <= TEMP_NEUTRAL) {
+                const factor = (temp - TEMP_MIN_COLOR) / (TEMP_NEUTRAL - TEMP_MIN_COLOR);
+                hue = 240 - (60 * factor);
+                saturation = 70 - (40 * factor);
+                lightness = 65 + (25 * factor);
+            } else {
+                const factor = (temp - TEMP_NEUTRAL) / (TEMP_MAX_COLOR - TEMP_NEUTRAL);
+                hue = 60 - (60 * factor);
+                saturation = 30 + (40 * factor);
+                lightness = 90 - (25 * factor);
+            }
+
+            hue = Math.max(0, Math.min(360, hue));
+            saturation = Math.max(0, Math.min(100, saturation));
+            lightness = Math.max(0, Math.min(100, lightness));
+
+            return `hsl(${hue.toFixed(0)}, ${saturation.toFixed(0)}%, ${lightness.toFixed(0)}%)`;
+        }
+
+        // --- Charting Functions ---
+        // createChart, updateChart (Identical to v3 - omitted for brevity)
+         function createChart(ctx, type, xLabel, yLabel) {
+             return new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [
+                        {
+                            label: 'Relación Calculada',
+                            data: [],
+                            borderColor: 'rgb(59, 130, 246)',
+                            borderWidth: 2,
+                            tension: 0.1,
+                            showLine: true,
+                            pointRadius: 0,
+                            type: 'line'
+                        },
+                        {
+                            label: 'Estado Actual',
+                            data: [],
+                            backgroundColor: 'rgb(239, 68, 68)',
+                            pointRadius: 6,
+                            pointHoverRadius: 8
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            position: 'bottom',
+                            title: { display: true, text: xLabel }
+                        },
+                        y: {
+                            title: { display: true, text: yLabel }
+                        }
+                    },
+                     animation: {
+                        duration: 0
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) { label += ': '; }
+                                    if (context.parsed.y !== null && context.parsed.x !== null) {
+                                        label += `(${context.parsed.x.toFixed(2)}, ${context.parsed.y.toFixed(2)})`;
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateChart(chart, curveData, currentPoint) {
+            if (!chart) return;
+            chart.data.datasets[0].data = curveData;
+            chart.data.datasets[1].data = [currentPoint];
+            chart.update('none');
+        }
+
+
+        // --- Update Functions (Combined Logic) ---
+
+        function updateBoyle(source = 'slider') {
+            // State variables needed: p, v, t, n
+            let { p, v, t, n } = state.boyle;
+            // Slider limits
+            const vMin = parseFloat(boyleVolumeSlider.min);
+            const vMax = parseFloat(boyleVolumeSlider.max);
+            // Define a reasonable pressure range for display and chart scaling, can be dynamic if needed
+            const pDisplayMin = 0.1;
+            const pDisplayMax = 20; // Adjust as needed, maybe based on initial constants
+
+            // Read constants first if they changed
+            if (source === 'input_t' || source === 'input_n') {
+                 t = parseFloat(boyleTempInput.value) || state.boyle.t;
+                 n = parseFloat(boyleMolesInput.value) || state.boyle.n;
+                 t = Math.max(1, t);
+                 n = Math.max(0.01, n);
+                 boyleTempInput.value = t;
+                 boyleMolesInput.value = n;
+                 // Keep V from slider
+                 v = parseFloat(boyleVolumeSlider.value);
+            } else if (source === 'slider_v') {
+                 v = parseFloat(boyleVolumeSlider.value);
+                 // Keep constants from state
+                 t = state.boyle.t;
+                 n = state.boyle.n;
+            } else { // Init
+                v = parseFloat(boyleVolumeSlider.value);
+                t = parseFloat(boyleTempInput.value);
+                n = parseFloat(boyleMolesInput.value);
+            }
+
+             // Always calculate P based on V, T, n
+             v = Math.max(vMin, Math.min(vMax, v)); // Clamp V from slider
+             if (v > 0) { // Avoid division by zero
+                p = (n * R * t) / v;
+             } else {
+                p = Infinity; // Or handle as error
+             }
+
+             // Update state
+             state.boyle = { p, v, t, n };
+
+            // Update UI displays
+            boyleVolumeValue.textContent = `${v.toFixed(1)} L`;
+            // Display calculated pressure, handle extreme values
+            if (p === Infinity) {
+                 boylePressureCalculatedValue.textContent = `> ${pDisplayMax.toFixed(1)} atm`;
+            } else {
+                 boylePressureCalculatedValue.textContent = `${p.toFixed(1)} atm`;
+            }
+            boyleConstantDisplay.textContent = (p !== Infinity) ? (p * v).toFixed(2) : 'N/A';
+
+            // Update Piston visualization
+            const normalizedVolume = (v - vMin) / (vMax - vMin);
+            const pistonHeightPercentage = (1 - normalizedVolume) * 100;
+            boylePiston.style.height = `${Math.max(5, Math.min(95, pistonHeightPercentage))}%`;
+
+            // Update Container Color
+            boyleContainer.style.backgroundColor = getTemperatureColor(t);
+
+            // Update Particles
+            updateParticles('boyle', n, t);
+
+            // Update Chart
+            const curveData = [];
+            const numPoints = 50;
+            for (let i = 0; i <= numPoints; i++) {
+                const vol = vMin + (i / numPoints) * (vMax - vMin);
+                if (vol > 0) {
+                    const pres = (n * R * t) / vol;
+                    // Only include points within a reasonable display range for the chart
+                    if (pres >= 0 && pres <= pDisplayMax * 1.5) {
+                       curveData.push({ x: vol, y: pres });
+                    } else if (pres > pDisplayMax * 1.5 && curveData[curveData.length-1]?.y <= pDisplayMax * 1.5) {
+                         // Add one point just above max to show trend, if previous was in range
+                         curveData.push({ x: vol, y: pDisplayMax * 1.5 });
+                    }
+                }
+            }
+             // Ensure the current point is always added, even if outside typical curve range
+            const currentPoint = { x: v, y: Math.min(p, pDisplayMax * 1.5) }; // Cap y for display
+            updateChart(boyleChart, curveData.sort((a,b) => a.x - b.x), currentPoint);
+        }
+
+
+        // updateCharles, updateAvogadro (Identical to v3 - omitted for brevity)
+         function updateCharles(source = 'slider') {
+            let { t, v, p, n } = state.charles;
+            const tMin = parseFloat(charlesTempSlider.min);
+            const tMax = parseFloat(charlesTempSlider.max);
+
+            if (source === 'input_p' || source === 'input_n') {
+                 p = parseFloat(charlesPressureInput.value) || state.charles.p;
+                 n = parseFloat(charlesMolesInput.value) || state.charles.n;
+                 p = Math.max(0.01, p);
+                 n = Math.max(0.01, n);
+                 charlesPressureInput.value = p;
+                 charlesMolesInput.value = n;
+                 t = parseFloat(charlesTempSlider.value);
+             } else if (source === 'slider') {
+                 t = parseFloat(charlesTempSlider.value);
+                 p = state.charles.p;
+                 n = state.charles.n;
+             } else { // Init
+                 t = parseFloat(charlesTempSlider.value);
+                 p = parseFloat(charlesPressureInput.value);
+                 n = parseFloat(charlesMolesInput.value);
+             }
+
+             t = Math.max(tMin, Math.min(tMax, t));
+             v = (n * R * t) / p;
+
+             state.charles = { t, v, p, n };
+
+            charlesTempValue.textContent = `${t.toFixed(0)} K`;
+            charlesVolumeValue.textContent = `${v.toFixed(1)} L`;
+            charlesConstantDisplay.textContent = v > 0 && t > 0 ? (v / t).toFixed(4) : 'N/A';
+
+            const minVisualV = (n * R * tMin) / p;
+            const maxVisualV = (n * R * tMax) / p;
+            let normalizedVolume = 0.5;
+            if (maxVisualV > minVisualV && maxVisualV > 0) {
+               normalizedVolume = Math.max(0, Math.min(1, (v - minVisualV) / (maxVisualV - minVisualV)));
+            }
+            const pistonHeightPercentage = (1 - normalizedVolume) * 100;
+            charlesPiston.style.height = `${Math.max(5, Math.min(95, pistonHeightPercentage))}%`;
+
+            charlesContainer.style.backgroundColor = getTemperatureColor(t);
+            updateParticles('charles', n, t);
+
+            const curveData = [];
+            const numPoints = 50;
+             for (let i = 0; i <= numPoints; i++) {
+                const temp = tMin + (i / numPoints) * (tMax - tMin);
+                if (temp > 0) {
+                    const vol = (n * R * temp) / p;
+                    if (vol >= 0) {
+                       curveData.push({ x: temp, y: vol });
+                    }
+                }
+            }
+            updateChart(charlesChart, curveData, { x: t, y: v });
+        }
+
+        function updateAvogadro(source = 'slider') {
+             let { n, v, p, t } = state.avogadro;
+             const nMin = parseFloat(avogadroMolesSlider.min);
+             const nMax = parseFloat(avogadroMolesSlider.max);
+
+             if (source === 'input_p' || source === 'input_t') {
+                 p = parseFloat(avogadroPressureInput.value) || state.avogadro.p;
+                 t = parseFloat(avogadroTempInput.value) || state.avogadro.t;
+                 p = Math.max(0.01, p);
+                 t = Math.max(1, t);
+                 avogadroPressureInput.value = p;
+                 avogadroTempInput.value = t;
+                 n = parseFloat(avogadroMolesSlider.value);
+             } else if (source === 'slider') {
+                 n = parseFloat(avogadroMolesSlider.value);
+                 p = state.avogadro.p;
+                 t = state.avogadro.t;
+             } else { // Init
+                 n = parseFloat(avogadroMolesSlider.value);
+                 p = parseFloat(avogadroPressureInput.value);
+                 t = parseFloat(avogadroTempInput.value);
+             }
+
+             n = Math.max(nMin, Math.min(nMax, n));
+             v = (n * R * t) / p;
+
+             state.avogadro = { n, v, p, t };
+
+            avogadroMolesValue.textContent = `${n.toFixed(2)} mol`;
+            avogadroVolumeValue.textContent = `${v.toFixed(1)} L`;
+            avogadroConstantDisplay.textContent = v > 0 && n > 0 ? (v / n).toFixed(1) : 'N/A';
+
+            const minVisualV = (nMin * R * t) / p;
+            const maxVisualV = (nMax * R * t) / p;
+            let normalizedVolume = 0.5;
+            if (maxVisualV > minVisualV && maxVisualV > 0) {
+               normalizedVolume = Math.max(0, Math.min(1, (v - minVisualV) / (maxVisualV - minVisualV)));
+            }
+            const pistonHeightPercentage = (1 - normalizedVolume) * 100;
+            avogadroPiston.style.height = `${Math.max(5, Math.min(95, pistonHeightPercentage))}%`;
+
+            avogadroContainer.style.backgroundColor = getTemperatureColor(t);
+            updateParticles('avogadro', n, t);
+
+            const curveData = [];
+            const numPoints = 50;
+             for (let i = 0; i <= numPoints; i++) {
+                const moles = nMin + (i / numPoints) * (nMax - nMin);
+                 if (moles > 0) {
+                    const vol = (moles * R * t) / p;
+                     if (vol >= 0) {
+                        curveData.push({ x: moles, y: vol });
+                    }
+                 }
+            }
+            updateChart(avogadroChart, curveData, { x: n, y: v });
+        }
+
+
+        // --- Event Listeners ---
+        function addDebouncedListener(element, eventType, callback, delay = 50) {
+            let timeoutId;
+            element.addEventListener(eventType, (event) => {
+                clearTimeout(timeoutId);
+                timeoutId = setTimeout(() => {
+                    if (element.type === 'number' && !element.checkValidity()) {
+                        console.warn("Invalid number input:", element.value);
+                        element.value = Math.max(parseFloat(element.min) || 0, Math.min(parseFloat(element.max) || Infinity, parseFloat(element.value))) || element.defaultValue;
+                    }
+                    callback(event);
+                }, delay);
+            });
+        }
+
+        // Boyle Listeners
+        // REMOVED: boylePressureSlider listener
+        boyleVolumeSlider.addEventListener('input', () => updateBoyle('slider_v')); // Changed source identifier
+        addDebouncedListener(boyleTempInput, 'input', () => updateBoyle('input_t'));
+        addDebouncedListener(boyleMolesInput, 'input', () => updateBoyle('input_n'));
+
+        // Charles Listeners (No change)
+        charlesTempSlider.addEventListener('input', () => updateCharles('slider'));
+        addDebouncedListener(charlesPressureInput, 'input', () => updateCharles('input_p'));
+        addDebouncedListener(charlesMolesInput, 'input', () => updateCharles('input_n'));
+
+        // Avogadro Listeners (No change)
+        avogadroMolesSlider.addEventListener('input', () => updateAvogadro('slider'));
+        addDebouncedListener(avogadroPressureInput, 'input', () => updateAvogadro('input_p'));
+        addDebouncedListener(avogadroTempInput, 'input', () => updateAvogadro('input_t'));
+
+
+        // --- Initialization ---
+        function initialize() {
+            // Set initial state from HTML values
+            state.boyle = {
+                // p will be calculated in updateBoyle
+                v: parseFloat(boyleVolumeSlider.value),
+                t: parseFloat(boyleTempInput.value),
+                n: parseFloat(boyleMolesInput.value),
+                p: 0 // Placeholder, calculated below
+            };
+            state.charles = {
+                t: parseFloat(charlesTempSlider.value),
+                p: parseFloat(charlesPressureInput.value),
+                n: parseFloat(charlesMolesInput.value),
+                v: 0 // Will be calculated in updateCharles
+            };
+             state.avogadro = {
+                n: parseFloat(avogadroMolesSlider.value),
+                p: parseFloat(avogadroPressureInput.value),
+                t: parseFloat(avogadroTempInput.value),
+                v: 0 // Will be calculated in updateAvogadro
+            };
+
+
+            // Create Charts
+            boyleChart = createChart(boyleChartCtx, 'line', 'Volumen (L)', 'Presión (atm)');
+            charlesChart = createChart(charlesChartCtx, 'line', 'Temperatura (K)', 'Volumen (L)');
+            avogadroChart = createChart(avogadroChartCtx, 'line', 'Moles (mol)', 'Volumen (L)');
+
+            // Initial Updates to calculate dependent variables and draw everything
+            updateBoyle('init');
+            updateCharles('init');
+            updateAvogadro('init');
+
+            // Start animation loop
+            animateParticles();
+        }
+
+        // Ensure DOM is ready
+        document.addEventListener('DOMContentLoaded', initialize);
+
+        // Handle resize (Identical to v3)
+        window.addEventListener('resize', () => {
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+            }
+            animateParticles();
+        });
+
+    </script>
 
 </body>
 </html>
