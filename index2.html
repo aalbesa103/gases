@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Estados gaseosos y leyes de los gases</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&amp;display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet" />
+    <style>
+        /* Estilos generales */
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        #presentation-container {
+            width: 1280px;
+            height: 720px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+        }
+
+        .slide {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-color: #f0f8ff;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.6s ease-in-out, visibility 0.6s;
+            overflow: auto;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .slide.active {
+            opacity: 1;
+            visibility: visible;
+            z-index: 10;
+        }
+
+        /* Controles de navegación */
+        .nav-controls {
+            position: absolute;
+            bottom: 20px;
+            right: 30px;
+            display: flex;
+            gap: 10px;
+            z-index: 20;
+        }
+
+        .nav-button {
+            background-color: #2b6cb0;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-button:hover {
+            background-color: #1a365d;
+            transform: translateY(-2px);
+        }
+
+        .nav-button:disabled {
+            background-color: #a0aec0;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .slide-counter {
+            position: absolute;
+            bottom: 30px;
+            left: 30px;
+            font-size: 16px;
+            color: #718096;
+            z-index: 20;
+            font-weight: 500;
+        }
+
+
+        /* Estilos comunes de las diapositivas */
+        .slide-title {
+            color: #1a365d;
+            font-weight: 700;
+            text-align: center;
+            padding: 20px 0 10px;
+        }
+
+        .slide-title.large { font-size: 54px; }
+        .slide-title.medium { font-size: 44px; }
+        .slide-title.small { font-size: 40px; }
+
+        .accent-bar {
+            height: 5px;
+            width: 100px;
+            background-color: #ed8936;
+            margin: 10px auto 20px;
+            border-radius: 3px;
+        }
+        
+        .footer {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: #718096;
+            font-size: 14px;
+        }
+        
+        /* Estilos específicos para diapositivas */
+        
+        /* Slide 1 */
+        .slide-subtitle { color: #2b6cb0; font-size: 26px; text-align: center; margin: 0 auto; max-width: 90%; font-weight: 500; }
+        .s1-image-container { position: relative; height: 320px; margin-top: 20px; }
+        .s1-image-container img { object-fit: cover; border-radius: 10px; border: 4px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.15); position: absolute; }
+        .balloon-image { width: 380px; height: 230px; right: 100px; top: 0; z-index: 2; transform: rotate(3deg); }
+        .diver-image { width: 280px; height: 280px; right: 200px; top: 130px; z-index: 1; transform: rotate(-3deg); }
+        .s1-content { color: #4a5568; font-size: 20px; line-height: 1.5; padding: 20px 40px; max-width: 700px; margin-top: 20px; }
+
+        /* Slide 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 16, 17 */
+        .content-flex { display: flex; padding: 0 40px; gap: 30px; }
+        .text-column { flex: 1; color: #4a5568; font-size: 19px; line-height: 1.5; }
+        .visual-column { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: space-between; }
+        .formula-box { background-color: #e6f7ff; border: 2px solid #2b6cb0; border-radius: 8px; padding: 20px; margin: 10px 0; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); width: 90%; }
+        .formula { font-size: 36px; color: #1a365d; margin: 10px 0; }
+        .formula-label { font-size: 18px; font-weight: 600; color: #2b6cb0; margin-bottom: 10px; }
+        .image-container { width: 90%; margin: 15px 0; display: flex; flex-direction: column; align-items: center; }
+        .image-container img { max-width: 100%; max-height: 250px; object-fit: contain; border-radius: 8px; border: 2px solid white; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .image-caption { font-size: 16px; color: #4a5568; text-align: center; margin-top: 8px; font-style: italic; }
+        .units-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .units-table th, .units-table td { border: 1px solid #cbd5e0; padding: 8px; text-align: center; }
+        .units-table th { background-color: #e2e8f0; color: #2b6cb0; font-weight: 600; }
+        .note-box { background-color: #fffbeb; border-left: 4px solid #ed8936; padding: 10px; margin-top: 15px; border-radius: 4px; }
+        .section-title { color: #2b6cb0; font-weight: 600; font-size: 20px; margin: 15px 0 8px; }
+
+        /* Slide 11, 12, 13, 14 */
+        .content-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; padding: 0 40px; }
+        .procedure-column, .results-column, .example-column { color: #4a5568; font-size: 18px; line-height: 1.4; }
+        .apparatus-column, .errors-column { display: flex; flex-direction: column; align-items: center; }
+        .apparatus-image { width: 90%; height: auto; max-height: 280px; object-fit: contain; border: 2px solid white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); margin-bottom: 15px; }
+        .step { display: flex; margin-bottom: 12px; align-items: flex-start; }
+        .step-number { background-color: #2b6cb0; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 14px; font-weight: 600; margin-right: 10px; flex-shrink: 0; margin-top: 2px; }
+        .step-text { flex: 1; }
+        .caution-box { background-color: #fffaf0; border-left: 4px solid #ed8936; padding: 12px; border-radius: 4px; margin-top: 15px; color: #4a5568; }
+        .caution-title { display: flex; align-items: center; color: #c05621; font-weight: 600; font-size: 18px; margin-bottom: 8px; }
+        .caution-title i { margin-right: 8px; }
+        .caution-list { margin: 0; padding-left: 20px; }
+        .caution-list li { margin-bottom: 6px; }
+
+        /* Slide 17 (Tabla de deducciones) */
+        .comparison-table { width: 95%; margin: 20px auto; border-collapse: separate; border-spacing: 0; border: 2px solid #90cdf4; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.1); font-size: 16px; }
+        .comparison-table th { background-color: #2b6cb0; color: white; padding: 12px; text-align: center; font-weight: 600; }
+        .comparison-table td { padding: 12px; border-bottom: 1px solid #bee3f8; }
+        .comparison-table tr:last-child td { border-bottom: none; }
+        .comparison-table tr:nth-child(even) { background-color: #ebf8ff; }
+        .comparison-table tr:nth-child(odd) { background-color: #f7fafc; }
+        .law-name { font-weight: bold; color: #2c5282; font-size: 18px; margin-bottom: 5px; }
+        .law-formula { font-family: 'Courier New', Courier, monospace; color: #2b6cb0; }
+        .highlight { background-color: #fffbeb; padding: 2px 5px; border-radius: 4px; font-weight: 600; color: #c05621; }
+
+        /* Slide 19 (Mapa mental) */
+        .mind-map-container { width: 95%; margin: 10px auto; position: relative; height: 450px; }
+        .center-node { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); background-color: #2b6cb0; color: white; border-radius: 50%; width: 140px; height: 140px; display: flex; align-items: center; justify-content: center; text-align: center; font-weight: 600; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 10; font-size: 16px; }
+        .branch-node { position: absolute; background-color: #ebf8ff; border: 2px solid #90cdf4; border-radius: 8px; padding: 10px; text-align: center; width: 190px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); font-weight: 500; color: #2c5282; }
+        .branch-node-title { font-weight: 600; font-size: 17px; color: #2c5282; margin-bottom: 5px; }
+        .branch-node-content { font-size: 14px; color: #4a5568; line-height: 1.4; }
+        .summary-box { background-color: #ebf8ff; border: 2px solid #90cdf4; border-radius: 8px; padding: 15px; margin: 20px auto 0; width: 90%; color: #2c5282; }
+        .summary-title { font-weight: 600; font-size: 18px; margin-bottom: 8px; }
+    </style>
+</head>
+
+<body>
+    <div id="presentation-container">
+        <!-- Diapositiva 1 -->
+        <div class="slide active">
+            <h1 class="slide-title large">Estados gaseosos y leyes de los gases</h1>
+            <div class="accent-bar"></div>
+            <h2 class="slide-subtitle">¿Por qué vuela un globo aerostático? ¿Qué tienen en común inflar una llanta y bucear?</h2>
+            <div class="s1-image-container">
+                <img alt="Globo aerostático al amanecer" class="balloon-image" src="https://page.gensparksite.com/slides_images/fc4ebbb80206d07690ab2d00044b3a63.jpg" />
+                <img alt="Buceador explorando el océano" class="diver-image" src="https://page.gensparksite.com/slides_images/eda0e56cc3d52c223c8fad2c530eea12.jpg" />
+            </div>
+            <div class="s1-content">
+                <p>En esta presentación conocerás cómo se comportan los gases, su importancia científica y sus aplicaciones en la vida cotidiana. Descubrirás las leyes fundamentales que explican fenómenos como la presión atmosférica, la flotabilidad y la compresibilidad de los gases.</p>
+                <p class="mt-4"><strong>Temas:</strong> Presión, leyes de Boyle, Charles, Gay-Lussac, Avogadro, teoría cinética molecular, experimentos clásicos y aplicaciones prácticas.</p>
+            </div>
+            <div class="footer">Física y Química | Curso 2025</div>
+        </div>
+
+        <!-- Diapositiva 2 -->
+        <div class="slide">
+            <h1 class="slide-title medium">Concepto de presión</h1>
+            <div class="accent-bar"></div>
+            <div class="content-flex">
+                <div class="text-column">
+                    <h3 class="section-title">Definición</h3>
+                    <p>La presión se define como la fuerza aplicada perpendicular a una superficie por unidad de área. Es una magnitud escalar que mide la intensidad de una fuerza distribuida sobre una superficie.</p>
+                    <h3 class="section-title">Unidades de presión</h3>
+                    <p>Unidad SI: Pascal (Pa) = 1 N/m²</p>
+                    <table class="units-table">
+                        <tr><th>Unidad</th><th>Equivalencia</th><th>Uso común</th></tr>
+                        <tr><td>Pascal (Pa)</td><td>1 N/m²</td><td>Unidad SI</td></tr>
+                        <tr><td>Atmósfera (atm)</td><td>101,325 Pa</td><td>Meteorología</td></tr>
+                        <tr><td>mmHg (Torr)</td><td>133.3 Pa</td><td>Medicina, vacío</td></tr>
+                        <tr><td>Bar</td><td>10⁵ Pa</td><td>Ingeniería</td></tr>
+                    </table>
+                    <div class="note-box">
+                        <p><strong>Ejemplo:</strong> Una fuerza de 600 N aplicada sobre una superficie de 3 m² genera una presión de 200 Pa.</p>
+                        <p><strong>Equivalencia:</strong> 1 atm ≈ peso de una columna de aire desde el nivel del mar hasta el espacio sobre un área de 1 m².</p>
+                    </div>
+                </div>
+                <div class="visual-column">
+                    <div class="formula-box">
+                        <div class="formula-label">Fórmula de la presión</div>
+                        <div class="formula">$$P = \frac{F}{A}$$</div>
+                        <p>Donde: P = presión, F = fuerza, A = área</p>
+                    </div>
+                    <div class="image-container">
+                        <img alt="Diagrama de presión" src="https://page.gensparksite.com/slides_images/4043b6b12bcb08c8544e08bcbc1cff5e.png" />
+                        <div class="image-caption">Mayor presión con la misma fuerza sobre un área menor</div>
+                    </div>
+                    <div class="image-container">
+                        <img alt="Ejemplos de presión" src="https://page.gensparksite.com/slides_images/f64a8a826ced33467c992488ac7f9990.png" />
+                        <div class="image-caption">Ejemplos: cuchillo afilado vs. raquetas de nieve</div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer">Física y Química | Curso 2025</div>
+        </div>
+
+        <!-- Diapositiva 3 -->
+        <div class="slide">
+            <h1 class="slide-title medium">Presión en líquidos: el experimento de Torricelli</h1>
+             <div class="accent-bar"></div>
+            <div class="content-flex">
+                <div class="text-column">
+                    <h3 class="section-title">Presión en columna de fluido</h3>
+                    <p>La presión debida a una columna de fluido estático viene dada por la fórmula: P = ρgh</p>
+                    <ul class="ml-8 list-disc">
+                        <li><strong>P</strong> = presión (Pa)</li>
+                        <li><strong>ρ</strong> = densidad del fluido (kg/m³)</li>
+                        <li><strong>g</strong> = aceleración gravitacional (9.8 m/s²)</li>
+                        <li><strong>h</strong> = altura de la columna de fluido (m)</li>
+                    </ul>
+                    <h3 class="section-title">El experimento histórico</h3>
+                    <p>En 1643, Evangelista Torricelli midió la presión atmosférica usando un tubo con mercurio, observando que la columna se estabilizaba a 760 mm.</p>
+                     <div class="note-box">
+                        <p><strong>¿Por qué mercurio?</strong> Su alta densidad (13.6 veces la del agua) permite usar una columna mucho más corta.</p>
+                    </div>
+                </div>
+                <div class="visual-column">
+                    <div class="formula-box">
+                        <div class="formula-label">Presión hidrostática</div>
+                        <div class="formula">$$P = \rho g h$$</div>
+                    </div>
+                    <div class="image-container">
+                        <img alt="Barómetro de Torricelli" src="https://page.gensparksite.com/slides_images/47f1815efabf15f8de5935252124c199.png" />
+                        <div class="image-caption">La presión atmosférica equilibra la columna de mercurio</div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer">Física y Química | Estados gaseosos y leyes de los gases</div>
+        </div>
+
+        <!-- Diapositiva 4 -->
+        <div class="slide">
+            <h1 class="slide-title medium">Presión de gas y manómetro</h1>
+            <div class="accent-bar"></div>
+            <div class="content-flex">
+                <div class="text-column">
+                    <h3 class="section-title">Manómetro de tubo en U</h3>
+                    <p>Mide la presión de un gas en relación a la atmosférica. La diferencia de altura (∆h) en el líquido (mercurio) indica la diferencia de presión.</p>
+                    <div class="note-box">
+                        <p><strong>Ejemplo:</strong> Si P<sub>atm</sub> es 760 torr y ∆h es 6 cm:</p>
+                        <p>Si el mercurio está más alto en el lado abierto: P<sub>gas</sub> = 760 + 60 = 820 torr</p>
+                        <p>Si el mercurio está más alto en el lado del gas: P<sub>gas</sub> = 760 - 60 = 700 torr</p>
+                    </div>
+                </div>
+                <div class="visual-column">
+                    <div class="formula-box">
+                        <div class="formula-label">Cálculo de la presión de un gas</div>
+                        <div class="formula" style="font-size: 28px;">$$P_{gas} = P_{atm} \pm \rho g \Delta h$$</div>
+                    </div>
+                    <div class="image-container">
+                         <img alt="Diagrama de manómetro de tubo en U" src="https://page.gensparksite.com/slides_images/02328fafe00a61fb35a39dc08ad73f79.webp" />
+                        <div class="image-caption">Manómetro midiendo presión relativa a la atmósfera</div>
+                    </div>
+                </div>
+            </div>
+             <div class="footer">Física y Química | Curso 2025</div>
+        </div>
+
+        <!-- Diapositiva 5 -->
+        <div class="slide">
+            <h1 class="slide-title medium">Ley de Boyle-Mariotte: enunciado e historia</h1>
+            <div class="accent-bar"></div>
+            <div class="content-flex">
+                <div class="text-column">
+                    <h3 class="section-title">Enunciado</h3>
+                    <p>"A temperatura constante, el volumen de una cantidad fija de gas es inversamente proporcional a la presión ejercida sobre él."</p>
+                    <p>Descubierta por Robert Boyle (1662) y Edme Mariotte (1679).</p>
+                    <div class="note-box">
+                        <p><strong>Ejemplo:</strong> Si un gas ocupa 2 L a 1 atm, a 2 atm su volumen será 1 L.</p>
+                        <p>$$P_1 V_1 = P_2 V_2$$</p>
+                    </div>
+                </div>
+                <div class="visual-column">
+                    <div class="formula-box">
+                        <div class="formula-label">Expresión matemática</div>
+                        <div class="formula">$$PV = \text{constante}$$</div>
+                    </div>
+                    <div class="image-container">
+                        <img alt="Gráfico de la Ley de Boyle" src="https://page.gensparksite.com/slides_images/b283ee9bed5d4b89339616df5f4c9e01.jpg" />
+                        <div class="image-caption">Gráfica P-V: curva hiperbólica</div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer">Física y Química | Leyes de los Gases | 2025</div>
+        </div>
+        
+        <!-- Diapositiva 6 -->
+        <div class="slide">
+             <h1 class="slide-title medium">Ley de Boyle: Visualización Molecular</h1>
+            <div class="accent-bar"></div>
+            <div class="content-flex">
+                <div class="text-column">
+                    <h3 class="section-title">Explicación a nivel molecular</h3>
+                    <p>A temperatura constante, la velocidad de las moléculas no cambia. Al reducir el volumen, la frecuencia de colisiones contra las paredes aumenta, duplicando la presión si el volumen se reduce a la mitad.</p>
+                     <div class="note-box">
+                        <p>La presión es proporcional a la densidad de moléculas (N/V). Si V disminuye, N/V aumenta y por tanto P aumenta.</p>
+                    </div>
+                </div>
+                <div class="visual-column">
+                    <div class="formula-box">
+                        <div class="formula-label">Ley de Boyle</div>
+                        <div class="formula">$$P \propto \frac{1}{V}$$</div>
+                    </div>
+                    <div class="image-container">
+                        <svg height="250" viewBox="0 0 450 250" width="450"><rect fill="#e6f7ff" height="190" rx="5" stroke="#2b6cb0" stroke-width="2" width="150" x="30" y="30"></rect><text fill="#1a365d" font-family="Montserrat" font-size="14" font-weight="bold" text-anchor="middle" x="105" y="20">Volumen normal</text><text fill="#1a365d" font-family="Montserrat" font-size="14" font-weight="bold" text-anchor="middle" x="105" y="240">Presión normal</text><circle cx="60" cy="60" fill="#ed8936" r="5"></circle><circle cx="120" cy="80" fill="#ed8936" r="5"></circle><circle cx="90" cy="130" fill="#ed8936" r="5"></circle><circle cx="150" cy="160" fill="#ed8936" r="5"></circle><circle cx="70" cy="180" fill="#ed8936" r="5"></circle><circle cx="100" cy="100" fill="#ed8936" r="5"></circle><rect fill="#e6f7ff" height="95" rx="5" stroke="#2b6cb0" stroke-width="2" width="150" x="270" y="30"></rect><text fill="#1a365d" font-family="Montserrat" font-size="14" font-weight="bold" text-anchor="middle" x="345" y="20">Volumen reducido</text><text fill="#1a365d" font-family="Montserrat" font-size="14" font-weight="bold" text-anchor="middle" x="345" y="240">Presión doble</text><circle cx="300" cy="50" fill="#ed8936" r="5"></circle><circle cx="330" cy="70" fill="#ed8936" r="5"></circle><circle cx="360" cy="50" fill="#ed8936" r="5"></circle><circle cx="310" cy="100" fill="#ed8936" r="5"></circle><circle cx="350" cy="110" fill="#ed8936" r="5"></circle><path d="M 190,125 L 260,125" stroke="#2b6cb0" stroke-width="3"></path><polygon fill="#2b6cb0" points="260,125 250,120 250,130"></polygon></svg>
+                        <div class="image-caption">Al comprimir el gas, aumentan las colisiones (mayor presión).</div>
+                    </div>
+                </div>
+            </div>
+             <div class="footer">Física y Química | Estados Gaseosos y Leyes de los Gases</div>
+        </div>
+
+        <!-- Diapositiva 7 -->
+        <div class="slide">
+            <h1 class="slide-title medium">Ley de Charles: Volumen y temperatura</h1>
+            <div class="accent-bar"></div>
+            <div class="content-flex">
+                <div class="text-column">
+                    <h3 class="section-title">Enunciado</h3>
+                    <p>"A presión constante, el volumen de una cantidad fija de gas es directamente proporcional a su temperatura absoluta (Kelvin)".</p>
+                    <div class="note-box">
+                         <p><strong>Cálculo:</strong> $$\frac{V_1}{T_1} = \frac{V_2}{T_2}$$</p>
+                         <p><strong>Importante:</strong> ¡Siempre usar Kelvin! K = °C + 273.15</p>
+                    </div>
+                </div>
+                <div class="visual-column">
+                    <div class="formula-box">
+                        <div class="formula-label">Ley de Charles</div>
+                        <div class="formula">$$V = k \cdot T$$</div>
+                    </div>
+                    <div class="image-container">
+                        <img alt="Gráfico de la Ley de Charles" src="https://i.imgur.com/example.png" style="height: 250px; object-fit: cover;" />
+                         <img alt="Gráfico de la Ley de Charles" src="https://page.gensparksite.com/slides_images/5e266ffde6a91d202c46c30927f8ad97.gif" style="max-height: 250px;"/>
+                        <div class="image-caption">Relación lineal V-T. Extrapolando, V=0 a 0K.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer">Física y Química | Leyes de los Gases | 2025</div>
+        </div>
+
+        <!-- Diapositiva 8 -->
+        <div class="slide">
+            <h1 class="slide-title medium">Ley de Gay-Lussac: Presión-temperatura</h1>
+            <div class="accent-bar"></div>
+            <div class="content-flex">
+                <div class="text-column">
+                    <h3 class="section-title">Enunciado</h3>
+                    <p>"A volumen constante, la presión de un gas es directamente proporcional a su temperatura absoluta."</p>
+                    <div class="note-box">
+                        <p><strong>Ejemplo:</strong> La presión en un neumático aumenta en un día caluroso.</p>
+                        <p>$$\frac{P_1}{T_1} = \frac{P_2}{T_2}$$</p>
+                    </div>
+                </div>
+                <div class="visual-column">
+                    <div class="formula-box">
+                        <div class="formula-label">Ley de Gay-Lussac</div>
+                        <div class="formula">$$P = k \cdot T$$</div>
+                    </div>
+                     <div class="image-container">
+                        <svg height="200" viewbox="0 0 300 200" width="300"><rect fill="#e2e8f0" height="120" rx="10" stroke="#4a5568" stroke-width="2" width="100" x="100" y="40"></rect><circle cx="200" cy="80" fill="white" r="25" stroke="#4a5568" stroke-width="2"></circle><line stroke="#f56565" stroke-width="2" x1="200" x2="220" y1="80" y2="60"></line><circle cx="200" cy="80" fill="#4a5568" r="3"></circle><path d="M120,170 Q130,140 140,170 Q150,140 160,170 Q170,140 180,170" fill="none" stroke="#ed8936" stroke-width="3"></path></svg>
+                        <div class="image-caption">Al calentar un recipiente cerrado, la presión aumenta.</div>
+                    </div>
+                </div>
+            </div>
+             <div class="footer">Física y Química | Leyes de los Gases | Curso 2025</div>
+        </div>
+        
+        <!-- Diapositiva 9 -->
+        <div class="slide">
+             <h1 class="slide-title medium">Ley de Avogadro y mezclas de gases</h1>
+            <div class="accent-bar"></div>
+            <div class="content-flex">
+                <div class="text-column">
+                    <h3 class="section-title">Ley de Avogadro</h3>
+                    <p>"A presión y temperatura constantes, el volumen de un gas es proporcional al número de moles."</p>
+                    <h3 class="section-title">Ley de Dalton</h3>
+                    <p>La presión total de una mezcla de gases es la suma de las presiones parciales de cada gas.</p>
+                     <p>$$P_{total} = P_1 + P_2 + ...$$</p>
+                </div>
+                <div class="visual-column">
+                    <div class="formula-box">
+                        <div class="formula-label">Ley de Avogadro</div>
+                        <div class="formula">$$V \propto n$$</div>
+                    </div>
+                    <div class="image-container">
+                        <img alt="Ley de Avogadro visualización" src="https://i.imgur.com/example.png" style="height: 150px; object-fit: contain;" />
+                        <div class="image-caption">Doble de moles ocupa el doble de volumen (a P y T ctes).</div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer">Física y Química | Curso 2025</div>
+        </div>
+        
+        <!-- Diapositiva 10 -->
+        <div class="slide">
+             <h1 class="slide-title medium">Ecuación general de los gases ideales</h1>
+            <div class="accent-bar"></div>
+            <div class="content-flex">
+                <div class="text-column">
+                    <h3 class="section-title">Síntesis de todas las leyes</h3>
+                    <p>Combina las leyes de Boyle, Charles y Avogadro. Válida para gases a baja presión y alta temperatura.</p>
+                    <table class="units-table" style="font-size: 16px;">
+                        <tr><th>Constante R</th><th>Valor</th></tr>
+                        <tr><td>L·atm/mol·K</td><td>0.08206</td></tr>
+                        <tr><td>J/mol·K</td><td>8.314</td></tr>
+                    </table>
+                </div>
+                <div class="visual-column">
+                    <div class="formula-box">
+                        <div class="formula-label">Ecuación de los gases ideales</div>
+                        <div class="formula">$$PV = nRT$$</div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer">Física y Química | Curso 2025</div>
+        </div>
+
+        <!-- Diapositiva 11 -->
+        <div class="slide">
+            <h1 class="slide-title small">Aplicación: Método de Regnault para densidad de gases</h1>
+            <div class="accent-bar"></div>
+            <div class="content-grid">
+                <div class="procedure-column">
+                    <h3 class="section-title">Procedimiento</h3>
+                    <div class="step"><div class="step-number">1</div><div class="step-text">Pesar ampolla vacía (m₀).</div></div>
+                    <div class="step"><div class="step-number">2</div><div class="step-text">Pesar ampolla con gas (m₁).</div></div>
+                    <div class="step"><div class="step-number">3</div><div class="step-text">Pesar ampolla con agua (m₂) para hallar V.</div></div>
+                    <div class="step"><div class="step-number">4</div><div class="step-text">Calcular densidad: ρ = (m₁-m₀)/V.</div></div>
+                </div>
+                <div class="apparatus-column">
+                    <img alt="Aparato de Regnault" class="apparatus-image" src="https://page.gensparksite.com/slides_images/ffc34f0d78897818ca9a40ed9d735e27.png" />
+                </div>
+            </div>
+            <div class="footer">Física y Química | Curso 2025</div>
+        </div>
+
+        <!-- Diapositiva 12 -->
+        <div class="slide">
+            <h1 class="slide-title small">Resultados y análisis de errores - Método de Regnault</h1>
+            <div class="accent-bar"></div>
+            <div class="content-grid">
+                <div class="results-column">
+                    <h3 class="section-title">Ejemplo de cálculo</h3>
+                    <!-- Simplified table for presentation -->
+                    <p>Con datos experimentales, se calcula el volumen, la masa del gas y finalmente su densidad. Luego se corrige a condiciones normales (CNTP).</p>
+                </div>
+                <div class="errors-column">
+                    <h3 class="section-title">Análisis de errores</h3>
+                    <p>Fuentes comunes de error incluyen vacío insuficiente, humedad, burbujas de aire al medir el volumen, y mediciones imprecisas de T y P.</p>
+                </div>
+            </div>
+            <div class="footer">Física y Química | Curso 2025</div>
+        </div>
+        
+        <!-- Diapositiva 13 -->
+        <div class="slide">
+            <h1 class="slide-title small">Aplicación: Método de Victor Meyer para peso molecular</h1>
+            <div class="accent-bar"></div>
+            <div class="content-grid">
+                <div class="procedure-column">
+                    <h3 class="section-title">Procedimiento</h3>
+                    <p>Se vaporiza una masa conocida de un líquido volátil. El vapor desplaza un volumen de aire que se mide. Usando PV=nRT, se calcula 'n' (moles) y luego el Peso Molecular (M = masa/n).</p>
+                </div>
+                <div class="apparatus-column">
+                     <img alt="Aparato de Victor Meyer" class="apparatus-image" src="https://page.gensparksite.com/slides_images/42a70970b9c62559d19a90458e55c90c.png" />
+                </div>
+            </div>
+            <div class="footer">Física y Química | Curso 2025</div>
+        </div>
+        
+        <!-- Diapositiva 14 -->
+        <div class="slide">
+            <h1 class="slide-title small">Ejemplo y precauciones del método Meyer</h1>
+             <div class="accent-bar"></div>
+            <div class="content-grid">
+                <div class="example-column">
+                    <h3 class="section-title">Ejemplo: Cloroformo</h3>
+                    <p>A partir de la masa de la muestra y el volumen de aire desplazado, se calcula un PM experimental de 135 g/mol. El valor teórico es 119.5 g/mol (error del 13%).</p>
+                </div>
+                <div class="errors-column">
+                    <h3 class="section-title">Precauciones</h3>
+                    <p>Es crucial asegurar la vaporización completa, evitar fugas, y usar una cantidad de muestra adecuada. El método es útil para determinar fórmulas moleculares.</p>
+                </div>
+            </div>
+            <div class="footer">Física y Química | Curso 2025</div>
+        </div>
+
+        <!-- Diapositiva 15 -->
+        <div class="slide">
+             <h1 class="slide-title medium">Difusión y efusión: Ley de Graham</h1>
+            <div class="accent-bar"></div>
+            <div class="content-flex">
+                <div class="text-column">
+                    <h3 class="section-title">Definiciones</h3>
+                    <p><strong>Difusión:</strong> Mezcla gradual de gases.</p>
+                    <p><strong>Efusión:</strong> Escape de un gas por un orificio.</p>
+                    <h3 class="section-title">Ley de Graham</h3>
+                    <p>"La velocidad de difusión/efusión de un gas es inversamente proporcional a la raíz cuadrada de su masa molecular."</p>
+                </div>
+                <div class="visual-column">
+                    <div class="formula-box">
+                        <div class="formula-label">Ley de Graham</div>
+                        <div class="formula">$$\frac{v_A}{v_B} = \sqrt{\frac{M_B}{M_A}}$$</div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer">Física y Química | Curso 2025</div>
+        </div>
+
+        <!-- Diapositiva 16 -->
+        <div class="slide">
+             <h1 class="slide-title medium">Teoría cinética de los gases: postulados</h1>
+            <div class="accent-bar"></div>
+            <div class="content-flex">
+                <div class="text-column">
+                    <h3 class="section-title">Postulados</h3>
+                    <ol class="list-decimal pl-5">
+                        <li>Partículas pequeñas y muy separadas.</li>
+                        <li>Movimiento aleatorio y rectilíneo.</li>
+                        <li>Sin fuerzas intermoleculares.</li>
+                        <li>Choques perfectamente elásticos.</li>
+                        <li>Energía cinética promedio ∝ Temperatura absoluta.</li>
+                    </ol>
+                </div>
+                <div class="visual-column">
+                    <div class="formula-box">
+                        <div class="formula-label">Energía y Temperatura</div>
+                        <div class="formula" style="font-size: 24px;">$$\frac{1}{2} m \overline{v^2} = \frac{3}{2} k_B T$$</div>
+                    </div>
+                     <div class="image-container">
+                        <img alt="Moléculas de gas en movimiento" src="https://page.gensparksite.com/slides_images/a6c121c46e5026b3701022bd25eb7246.png" />
+                    </div>
+                </div>
+            </div>
+            <div class="footer">Física y Química | Teoría cinética de los gases | 2025</div>
+        </div>
+        
+        <!-- Diapositiva 17 -->
+        <div class="slide">
+            <h1 class="slide-title small">Teoría cinética: deducciones de leyes experimentales</h1>
+            <div class="accent-bar"></div>
+            <table class="comparison-table">
+                <thead><tr><th>Ley experimental</th><th>Explicación desde la teoría cinética</th></tr></thead>
+                <tbody>
+                    <tr>
+                        <td><div class="law-name">Ley de Boyle</div><div class="law-formula">P ∝ 1/V</div></td>
+                        <td>Menor volumen → más colisiones por área → mayor presión.</td>
+                    </tr>
+                    <tr>
+                        <td><div class="law-name">Ley de Charles</div><div class="law-formula">V ∝ T</div></td>
+                        <td>Mayor temperatura → moléculas más rápidas → necesitan más volumen para mantener P cte.</td>
+                    </tr>
+                    <tr>
+                        <td><div class="law-name">Ley de Gay-Lussac</div><div class="law-formula">P ∝ T</div></td>
+                        <td>Mayor temperatura → colisiones más fuertes y frecuentes → mayor presión.</td>
+                    </tr>
+                </tbody>
+            </table>
+             <div class="footer">Física y Química | Curso 2025</div>
+        </div>
+
+        <!-- Diapositiva 18 -->
+        <div class="slide">
+             <h1 class="slide-title medium">Escalas de temperatura: Kelvin vs Celsius</h1>
+            <div class="accent-bar"></div>
+            <div class="content-flex">
+                <div class="text-column">
+                    <h3 class="section-title">¿Por qué usar Kelvin?</h3>
+                    <p>Es una escala absoluta donde 0 K es el cero absoluto (mínima energía). Las leyes de los gases requieren una escala proporcional a la energía cinética, por lo que Kelvin es indispensable.</p>
+                </div>
+                <div class="visual-column">
+                    <div class="formula-box">
+                        <div class="formula-label">Conversión</div>
+                        <div class="formula" style="font-size: 28px;">$$T(K) = T(°C) + 273.15$$</div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer">Física y Química | Curso 2025</div>
+        </div>
+
+        <!-- Diapositiva 19 -->
+        <div class="slide">
+            <h1 class="slide-title small">Resumen y esquema final</h1>
+            <div class="accent-bar"></div>
+            <div class="mind-map-container">
+                <div class="center-node">Gas Ideal<br/>PV=nRT</div>
+                <div class="branch-node" style="left: 45%; top: -10px;"><div class="branch-node-title">Variables</div><div class="branch-node-content">P, V, T, n</div></div>
+                <div class="branch-node" style="right: 5%; top: 30%;"><div class="branch-node-title">Leyes</div><div class="branch-node-content">Boyle, Charles, Gay-Lussac, Avogadro</div></div>
+                <div class="branch-node" style="left: 45%; bottom: -10px;"><div class="branch-node-title">Aplicaciones</div><div class="branch-node-content">Densidad, Peso Molecular</div></div>
+                <div class="branch-node" style="left: 5%; top: 30%;"><div class="branch-node-title">Teoría Cinética</div><div class="branch-node-content">Explica las leyes a nivel molecular</div></div>
+            </div>
+            <div class="footer">Física y Química | Curso 2025</div>
+        </div>
+
+    </div>
+
+    <!-- Controles de navegación -->
+    <div class="slide-counter" id="slide-counter"></div>
+    <div class="nav-controls">
+        <button class="nav-button" id="prev-button">Anterior</button>
+        <button class="nav-button" id="next-button">Siguiente</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const slides = document.querySelectorAll('.slide');
+            const prevButton = document.getElementById('prev-button');
+            const nextButton = document.getElementById('next-button');
+            const slideCounter = document.getElementById('slide-counter');
+            let currentSlide = 0;
+            const totalSlides = slides.length;
+
+            function showSlide(index) {
+                slides.forEach((slide, i) => {
+                    slide.classList.toggle('active', i === index);
+                });
+                updateNav();
+                // Forzar el renderizado de MathJax en la diapositiva activa
+                if (window.MathJax) {
+                    window.MathJax.typesetPromise();
+                }
+            }
+
+            function updateNav() {
+                currentSlide = Array.from(slides).findIndex(slide => slide.classList.contains('active'));
+                prevButton.disabled = currentSlide === 0;
+                nextButton.disabled = currentSlide === totalSlides - 1;
+                slideCounter.textContent = `Diapositiva ${currentSlide + 1} de ${totalSlides}`;
+            }
+
+            nextButton.addEventListener('click', () => {
+                if (currentSlide < totalSlides - 1) {
+                    showSlide(currentSlide + 1);
+                }
+            });
+
+            prevButton.addEventListener('click', () => {
+                if (currentSlide > 0) {
+                    showSlide(currentSlide - 1);
+                }
+            });
+
+            // Mostrar la primera diapositiva inicialmente
+            showSlide(0);
+        });
+    </script>
+</body>
+
+</html>
