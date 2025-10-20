@@ -1,183 +1,482 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Leyes de los Gases Interactivas - Alberto Albesa -2025</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-      @font-face {
-        font-family: 'LucideIcons';
-        src: url(https://cdn.jsdelivr.net/npm/lucide-static@latest/font/Lucide.ttf) format('truetype');
-      }
-      .lucide {
-        font-family: 'LucideIcons';
-        font-size: 1.5rem; /* Adjust icon size */
-        line-height: 1;
-      }
-      /* Custom styles for particle visualization */
-      .gas-container {
-        position: relative;
-        border: 2px solid #94a3b8; /* slate-400 */
-        overflow: hidden;
-        /* background-color will be set dynamically by JS */
-        border-radius: 0.5rem; /* rounded-lg */
-        min-height: 200px;
-        height: 250px; /* Fixed height for consistency */
-        width: 100%;
-        transition: background-color 0.5s ease; /* Smooth color transition */
-      }
-      .particle {
-        position: absolute;
-        width: 6px; /* Smaller particles */
-        height: 6px;
-        background-color: #1e3a8a; /* darker blue for better contrast on light backgrounds */
-        border-radius: 50%;
-        will-change: transform; /* Optimize animation */
-      }
-       .piston {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: 20px;
-        background-color: #64748b; /* slate-500 */
-        border-top: 2px solid #475569; /* slate-600 */
-        transition: height 0.3s ease-in-out;
-        z-index: 10; /* Ensure piston is above particles if needed */
-      }
-      /* Style sliders */
-      input[type="range"] {
-        appearance: none;
-        width: 100%;
-        height: 8px;
-        background: #d1d5db; /* gray-300 */
-        border-radius: 5px;
-        outline: none;
-        opacity: 0.7;
-        transition: opacity .2s;
-        cursor: pointer;
-      }
-      input[type="range"]:hover {
-        opacity: 1;
-      }
-      input[type="range"]::-webkit-slider-thumb {
-        appearance: none;
-        width: 20px;
-        height: 20px;
-        background: #3b82f6; /* blue-500 */
-        border-radius: 50%;
-        cursor: pointer;
-      }
-      input[type="range"]::-moz-range-thumb {
-        width: 20px;
-        height: 20px;
-        background: #3b82f6; /* blue-500 */
-        border-radius: 50%;
-        cursor: pointer;
-        border: none;
-      }
-      /* Input number styling */
-       input[type="number"] {
-        width: 70px;
-        padding: 4px 8px;
-        border: 1px solid #d1d5db; /* gray-300 */
-        border-radius: 0.375rem; /* rounded-md */
-        font-size: 0.875rem; /* text-sm */
-        text-align: right;
-      }
-      .chart-container {
-        position: relative;
-        height: 250px; /* Match gas container height */
-        width: 100%;
-      }
-       /* Read-only value display style */
-      .value-display {
-          font-family: monospace;
-          font-size: 0.875rem; /* text-sm */
-          background-color: #f1f5f9; /* slate-100 */
-          padding: 0.25rem 0.5rem; /* px-2 py-1 */
-          border-radius: 0.25rem; /* rounded */
-          width: 70px;
-          text-align: right;
-          display: inline-block; /* To control width */
-          height: 34px; /* Match input height */
-          line-height: 24px; /* Adjust for vertical centering */
-          border: 1px solid #e2e8f0; /* slate-200 */
-      }
-       .value-display-full { /* For Charles/Avogadro Volume */
-          font-family: monospace;
-          font-size: 0.875rem; /* text-sm */
-          background-color: #f1f5f9; /* slate-100 */
-          padding: 0.25rem 0.5rem; /* px-2 py-1 */
-          border-radius: 0.25rem; /* rounded */
-          width: 100%;
-          text-align: center;
-          height: 34px; /* Match input height */
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          border: 1px solid #e2e8f0; /* slate-200 */
-      }
 
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Estados gaseosos y leyes de los gases</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&amp;display=swap" rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+     <!-- === INICIO DEL CAMBIO === -->
+    
+    <!-- 1. AÑADE ESTE BLOQUE DE CONFIGURACIÓN -->
+<script>
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']], // <-- AÑADE ESTA LÍNEA
+      packages: {'[+]': ['ams']}
+    }
+  };
+</script>
+    
+    <!-- 2. TU SCRIPT DE MATHJAX EXISTENTE VA DESPUÉS -->
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    
+    <!-- === FIN DEL CAMBIO === -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css" rel="stylesheet" />
+    <style>
+        /* Estilos generales */
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #f0f8ff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        #presentation-container {
+            width: 1280px;
+            height: 720px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+        }
+
+        .slide {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background-color: #f0f8ff;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.6s ease-in-out, visibility 0.6s;
+            overflow: auto;
+            padding: 20px 40px;
+            box-sizing: border-box;
+        }
+
+        .slide.active {
+            opacity: 1;
+            visibility: visible;
+            z-index: 10;
+        }
+
+        /* Controles de navegación */
+        .nav-controls {
+            position: absolute;
+            bottom: 20px;
+            right: 30px;
+            display: flex;
+            gap: 10px;
+            z-index: 20;
+        }
+
+        .nav-button {
+            background-color: #2b6cb0;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-button:hover {
+            background-color: #1a365d;
+            transform: translateY(-2px);
+        }
+
+        .nav-button:disabled {
+            background-color: #a0aec0;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .slide-counter {
+            position: absolute;
+            bottom: 30px;
+            left: 30px;
+            font-size: 16px;
+            color: #718096;
+            z-index: 20;
+            font-weight: 500;
+        }
+
+        /* Estilos comunes de las diapositivas */
+        .slide-title {
+            color: #1a365d;
+            font-weight: 700;
+            text-align: center;
+            padding: 20px 0 10px;
+        }
+
+        .slide-title.large { font-size: 54px; }
+        .slide-title.medium { font-size: 44px; }
+        .slide-title.small { font-size: 40px; }
+
+        .accent-bar {
+            height: 5px;
+            width: 100px;
+            background-color: #ed8936;
+            margin: 10px auto 20px;
+            border-radius: 3px;
+        }
+        
+        .footer {
+            position: absolute;
+            bottom: 20px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: #718096;
+            font-size: 14px;
+        }
+        
+        /* Estilos específicos para diapositivas */
+        
+        /* Slide 1 */
+        .slide-subtitle { color: #2b6cb0; font-size: 26px; text-align: center; margin: 0 auto; max-width: 90%; font-weight: 500; }
+        .s1-image-container { position: relative; height: 320px; margin-top: 20px; }
+        .s1-image-container img { object-fit: cover; border-radius: 10px; border: 4px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.15); position: absolute; }
+        .balloon-image { width: 380px; height: 230px; right: 100px; top: 0; z-index: 2; transform: rotate(3deg); }
+        .diver-image { width: 280px; height: 280px; right: 200px; top: 130px; z-index: 1; transform: rotate(-3deg); }
+        .s1-content { color: #4a5568; font-size: 20px; line-height: 1.5; padding: 20px 40px; max-width: 700px; margin-top: 20px; }
+
+        /* Estilos genéricos */
+        .content-flex { display: flex; padding: 0 20px; gap: 30px; align-items: flex-start; }
+        .text-column { flex: 1; color: #4a5568; font-size: 18px; line-height: 1.6; }
+        .visual-column { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; }
+        .formula-box { background-color: #e6f7ff; border: 2px solid #2b6cb0; border-radius: 8px; padding: 20px; margin: 10px 0; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); width: 95%; }
+        .formula { font-size: 36px; color: #1a365d; margin: 10px 0; }
+        .formula-label { font-size: 18px; font-weight: 600; color: #2b6cb0; margin-bottom: 10px; }
+        .image-container { width: 90%; margin: 15px 0; display: flex; flex-direction: column; align-items: center; }
+        .image-container img { max-width: 100%; max-height: 280px; object-fit: contain; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .image-caption { font-size: 15px; color: #4a5568; text-align: center; margin-top: 8px; font-style: italic; }
+        .units-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        .units-table th, .units-table td { border: 1px solid #cbd5e0; padding: 8px; text-align: center; font-size: 15px; }
+        .units-table th { background-color: #e2e8f0; color: #2b6cb0; font-weight: 600; }
+        .note-box { background-color: #fffbeb; border-left: 4px solid #ed8936; padding: 12px; margin-top: 15px; border-radius: 4px; font-size: 16px; }
+        .section-title { color: #2b6cb0; font-weight: 600; font-size: 22px; margin: 15px 0 10px; border-bottom: 2px solid #bee3f8; padding-bottom: 5px; }
+        .content-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; padding: 0 20px; }
+        .procedure-column, .results-column, .example-column { color: #4a5568; font-size: 18px; line-height: 1.5; }
+        .apparatus-column, .errors-column { display: flex; flex-direction: column; align-items: center; }
+        .apparatus-image { width: 90%; height: auto; max-height: 320px; object-fit: contain; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); margin-bottom: 15px; }
+        .step { display: flex; margin-bottom: 12px; align-items: flex-start; }
+        .step-number { background-color: #2b6cb0; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 14px; font-weight: 600; margin-right: 10px; flex-shrink: 0; margin-top: 2px; }
+        
+        .comparison-table { width: 95%; margin: 20px auto; border-collapse: separate; border-spacing: 0; border: 2px solid #90cdf4; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.1); font-size: 16px; }
+        .comparison-table th { background-color: #2b6cb0; color: white; padding: 12px; text-align: center; font-weight: 600; }
+        .comparison-table td { padding: 12px; border-bottom: 1px solid #bee3f8; }
+        .comparison-table tr:last-child td { border-bottom: none; }
+        .comparison-table tr:nth-child(even) { background-color: #ebf8ff; }
+        .comparison-table tr:nth-child(odd) { background-color: #f7fafc; }
+        .law-name { font-weight: bold; color: #2c5282; font-size: 18px; margin-bottom: 5px; }
+        .law-formula { font-family: 'Courier New', Courier, monospace; color: #2b6cb0; }
+        .highlight { background-color: #fffbeb; padding: 2px 5px; border-radius: 4px; font-weight: 600; color: #c05621; }
+
+        .mind-map-container { width: 95%; margin: 10px auto; position: relative; height: 450px; }
+        .center-node { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); background-color: #2b6cb0; color: white; border-radius: 50%; width: 140px; height: 140px; display: flex; align-items: center; justify-content: center; text-align: center; font-weight: 600; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 10; font-size: 16px; }
+        .branch-node { position: absolute; background-color: #ebf8ff; border: 2px solid #90cdf4; border-radius: 8px; padding: 10px; text-align: center; width: 190px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); font-weight: 500; color: #2c5282; }
+        .branch-node-title { font-weight: 600; font-size: 17px; color: #2c5282; margin-bottom: 5px; }
+        .branch-node-content { font-size: 14px; color: #4a5568; line-height: 1.4; }
+
+        /* --- ESTILOS ADAPTADOS DEL SEGUNDO DOCUMENTO --- */
+        .simulation-container {
+            background-color: white; border-radius: 0.75rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            padding: 1rem; margin-bottom: 1rem;
+        }
+        .simulation-container canvas {
+            display: block; margin: 0.5rem auto; border: 1px solid #d1d5db;
+            border-radius: 0.5rem; background-color: #f9fafb;
+            max-width: 100%;
+        }
+        .simulation-container .btn {
+            padding: 0.5rem 1rem; border-radius: 0.375rem; font-weight: 600;
+            color: white; transition: background-color 0.3s ease; cursor: pointer;
+            display: inline-flex; align-items: center;
+        }
+        .simulation-container .btn-primary { background-color: #3b82f6; }
+        .simulation-container .btn-primary:hover { background-color: #2563eb; }
+        .simulation-container .explanation { font-size: 0.75rem; color: #4b5563; margin-top: 0.5rem; }
+        .simulation-container .particle-info {
+            display: flex; justify-content: center; align-items: center;
+            margin-top: 0.5rem; gap: 0.75rem; flex-wrap: wrap;
+        }
+        .simulation-container .particle-legend { display: flex; align-items: center; gap: 0.25rem; font-size: 0.75rem; }
+        .simulation-container .particle-dot { width: 10px; height: 10px; border-radius: 50%; }
+        .simulation-container .gas-selector-container {
+            display: flex; justify-content: space-around; align-items: center;
+            margin-bottom: 0.75rem; gap: 0.5rem; flex-wrap: wrap;
+        }
+        .simulation-container .gas-selector {
+            padding: 0.375rem 0.5rem; border-radius: 0.375rem; border: 1px solid #d1d5db;
+            background-color: white; font-size: 0.75rem;
+        }
+        .simulation-container label { font-size: 0.75rem; color: #374151; margin-right: 0.25rem; font-weight: 500; }
+
+        /* Estilos para el experimento HCl + NH3 */
+        .graham-tube { position: relative; width: 100%; height: 80px; background-color: rgba(255, 255, 255, 0.6); border-radius: 40px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1), inset 0 0 20px rgba(0,0,0,0.05); }
+        .graham-cotton { position: absolute; width: 60px; height: 60px; top: 50%; transform: translateY(-50%); border-radius: 50%; }
+        .graham-cotton-left { left: 10px; background: radial-gradient(circle, #f8e0e0 30%, #f1c1c1 70%); box-shadow: 0 0 15px rgba(255, 0, 0, 0.2); }
+        .graham-cotton-right { right: 10px; background: radial-gradient(circle, #e0f8e0 30%, #c1e1c1 70%); box-shadow: 0 0 15px rgba(0, 255, 0, 0.2); }
+        .graham-ring { position: absolute; width: 15px; height: 50px; top: 50%; left: 41%; transform: translateY(-50%); background-color: white; border-radius: 10px; box-shadow: 0 0 20px rgba(255, 255, 255, 0.8); opacity: 0.85; }
+        .graham-label { position: absolute; top: -25px; transform: translateX(-50%); background: #4a5568; color: white; padding: 2px 8px; border-radius: 5px; font-size: 14px; font-weight: 600; }
+
+        /* --- ESTILOS PARA LOS NUEVOS APPLETS --- */
+        .gas-container { position: relative; border: 2px solid #94a3b8; overflow: hidden; border-radius: 0.5rem; min-height: 200px; height: 250px; width: 100%; transition: background-color 0.5s ease; }
+        .particle { position: absolute; width: 6px; height: 6px; background-color: #1e3a8a; border-radius: 50%; will-change: transform; }
+        .particle.gas-a { background-color: #0ea5e9; } /* cyan-500 */
+        .particle.gas-b { background-color: #f97316; } /* orange-500 */
+        .piston { position: absolute; bottom: 0; left: 0; width: 100%; height: 20px; background-color: #64748b; border-top: 2px solid #475569; transition: height 0.3s ease-in-out; z-index: 10; }
+        input[type="range"] { appearance: none; width: 100%; height: 8px; background: #d1d5db; border-radius: 5px; outline: none; opacity: 0.7; transition: opacity .2s; cursor: pointer; }
+        input[type="range"]:hover { opacity: 1; }
+        input[type="range"]::-webkit-slider-thumb { appearance: none; width: 20px; height: 20px; background: #3b82f6; border-radius: 50%; cursor: pointer; }
+        input[type="range"]::-moz-range-thumb { width: 20px; height: 20px; background: #3b82f6; border-radius: 50%; cursor: pointer; border: none; }
+        input[type="number"] { width: 70px; padding: 4px 8px; border: 1px solid #d1d5db; border-radius: 0.375rem; font-size: 0.875rem; text-align: right; }
+        .chart-container { position: relative; height: 250px; width: 100%; }
+        .value-display { font-family: monospace; font-size: 0.875rem; background-color: #f1f5f9; padding: 0.25rem 0.5rem; border-radius: 0.25rem; width: 70px; text-align: right; display: inline-block; height: 34px; line-height: 24px; border: 1px solid #e2e8f0; }
+        .value-display-full { font-family: monospace; font-size: 0.875rem; background-color: #f1f5f9; padding: 0.25rem 0.5rem; border-radius: 0.25rem; width: 100%; text-align: center; height: 34px; display: flex; align-items: center; justify-content: center; border: 1px solid #e2e8f0; }
+
+        /* --- AÑADE ESTA LÍNEA AQUÍ --- */
+        .footer { display: none; }
     </style>
 </head>
-<body class="bg-slate-50 font-sans text-slate-800 p-4 md:p-8">
 
-    <header class="text-center mb-8">
-        <h1 class="text-3xl md:text-4xl font-bold text-blue-600 mb-2">Explorador Interactivo de las Leyes de los Gases v4</h1>
-        <p class="text-lg text-slate-600">Visualiza y grafica las relaciones P, V, T, n con retroalimentación de color.</p>
-    </header>
+<body>
+    <div id="presentation-container">
+        <!-- Diapositiva 1: Portada -->
+        <div class="slide active">
+            <h1 class="slide-title large">Estados gaseosos y leyes de los gases</h1>
+            <div class="accent-bar"></div>
+            <h2 class="slide-subtitle">Una aproximación desde lo macroscópico a lo molecular</h2>
+            <div class="s1-image-container">
+                <img alt="Globo aerostático al amanecer" class="balloon-image" src="https://page.gensparksite.com/slides_images/fc4ebbb80206d07690ab2d00044b3a63.jpg" />
+                <img alt="Buceador explorando el océano" class="diver-image" src="https://page.gensparksite.com/slides_images/eda0e56cc3d52c223c8fad2c530eea12.jpg" />
+            </div>
+            <div class="s1-content">
+                <p>En esta presentación descubrirás las leyes fundamentales que explican el comportamiento de los gases, conectando fenómenos cotidianos con los principios de la teoría cinética molecular.</p>
+                <p class="mt-4"><strong>Temas:</strong> Presión, leyes empíricas, ecuación del gas ideal, estequiometría y fundamentos moleculares.</p>
+            </div>
+            <div class="footer">Física y Química | Curso 2025</div>
+        </div>
 
-    <main class="space-y-12">
+        <!-- Diapositiva 2: Propiedades Macroscópicas -->
+        <div class="slide">
+            <h1 class="slide-title medium">Propiedades Macroscópicas de los Gases</h1>
+            <div class="accent-bar"></div>
+             <div class="content-flex">
+                 <div class="text-column">
+                     <ul class="space-y-6 text-xl">
+                         <li class="flex items-start"><i class="fas fa-compress-arrows-alt text-3xl text-blue-600 mr-4 mt-1"></i><div><strong>Compresibilidad:</strong> El volumen de un gas puede reducirse fácilmente aplicando presión.</div></li>
+                         <li class="flex items-start"><i class="fas fa-expand-arrows-alt text-3xl text-blue-600 mr-4 mt-1"></i><div><strong>Expansibilidad:</strong> Un gas ocupa todo el volumen del recipiente que lo contiene, no tiene forma ni volumen propio.</div></li>
+                         <li class="flex items-start"><i class="fas fa-feather-alt text-3xl text-blue-600 mr-4 mt-1"></i><div><strong>Baja Densidad:</strong> Las partículas están muy separadas, resultando en una masa muy pequeña por unidad de volumen.</div></li>
+                         <li class="flex items-start"><i class="fas fa-vials text-3xl text-blue-600 mr-4 mt-1"></i><div><strong>Miscibilidad:</strong> Forman mezclas homogéneas en cualquier proporción, como el aire que respiramos.</div></li>
+                     </ul>
+                 </div>
+                 <div class="visual-column">
+                     <div class="image-container">
+                         <img src="ChatGPT Image 20 oct 2025, 12_25_16.png" alt="Comparación de estados de la materia"/>
+                         <p class="image-caption">Comparación de la disposición de partículas en sólidos, líquidos y gases.</p>
+                     </div>
+                 </div>
+             </div>
+            <div class="footer">Parte I: Fundamentos y Variables de Estado</div>
+        </div>
+        
+        <!-- Diapositiva 3: Gases en la Tabla Periódica -->
+        <div class="slide">
+            <h1 class="slide-title medium">Gases Comunes en la Tabla Periódica</h1>
+            <div class="accent-bar"></div>
+            <div class="content-flex">
+                <div class="text-column">
+                    <h3 class="section-title">Elementos Gaseosos</h3>
+                    <p>A temperatura y presión ambiente (25°C y 1 atm), solo un puñado de elementos existen como gases. La mayoría son diatómicos.</p>
+                    <ul class="list-disc pl-5 mt-4 space-y-2 text-lg">
+                        <li><strong>Gases Diatómicos:</strong> Hidrógeno (H₂), Nitrógeno (N₂), Oxígeno (O₂), Flúor (F₂), Cloro (Cl₂)</li>
+                        <li><strong>Gases Nobles (Monoatómicos):</strong> Helio (He), Neón (Ne), Argón (Ar), Kriptón (Kr), Xenón (Xe), Radón (Rn)</li>
+                    </ul>
+                     <div class="note-box">Muchos compuestos moleculares de bajo peso molecular también son gases, como el metano (CH₄), amoníaco (NH₃), dióxido de carbono (CO₂) y sulfuro de hidrógeno (H₂S).</div>
+                </div>
+                <div class="visual-column">
+                     <div class="image-container">
+                         <img src="estado-elementos-tabla-compressor.jpg" alt="Tabla periódica destacando los gases"/>
+                         <p class="image-caption">Ubicación en la tabla periódica de los elementos que son gases en condiciones estándar.</p>
+                     </div>
+                </div>
+            </div>
+            <div class="footer">Parte I: Fundamentos y Variables de Estado</div>
+        </div>
 
-        <section id="boyle" class="bg-white p-6 rounded-xl shadow-lg border border-slate-200">
-            <h2 class="text-2xl font-semibold text-blue-700 mb-4 flex items-center">
-                <span class="lucide mr-2"></span> Ley de Boyle (P vs V)
-            </h2>
-            <p class="mb-4 text-slate-700">A <strong class="font-semibold">temperatura (T)</strong> y <strong class="font-semibold">cantidad de gas (n)</strong> constantes, la presión (P) es inversamente proporcional al volumen (V). <strong class="font-semibold">(P₁V₁ = P₂V₂)</strong></p>
+        <!-- Diapositiva 4: Comparación Densidades -->
+        <div class="slide">
+            <h1 class="slide-title medium">Densidad: Comparación de Estados</h1>
+            <div class="accent-bar"></div>
+            <div class="content-flex">
+                <div class="text-column">
+                    <h3 class="section-title">Caso del Agua (H₂O)</h3>
+                    <p>La diferencia de densidad entre los estados de la materia es enorme, especialmente al pasar a la fase gaseosa. Esto se debe a la gran separación entre las partículas.</p>
+                    <table class="units-table">
+                        <thead><tr><th>Estado</th><th>Densidad (g/mL)</th><th>Volumen Molar (mL/mol)</th></tr></thead>
+                        <tbody>
+                            <tr><td>Sólido (0°C)</td><td>0.917</td><td>19.6</td></tr>
+                            <tr><td>Líquido (20°C)</td><td>0.998</td><td>18.0</td></tr>
+                            <tr><td>Gas (100°C)</td><td>0.000588</td><td>30,600</td></tr>
+                        </tbody>
+                    </table>
+                     <div class="note-box">El volumen ocupado por un mol de agua en estado gaseoso es más de 1600 veces mayor que en estado líquido.</div>
+                </div>
+                <div class="visual-column">
+                     <div class="image-container">
+                         <img src="ChatGPT Image 20 oct 2025, 12_28_33.png" alt="Bromo líquido y gaseoso"/>
+                         <p class="image-caption">En el mismo volumen, hay muchas menos moléculas de Bromo (Br₂) en estado gaseoso que en estado líquido.</p>
+                     </div>
+                </div>
+            </div>
+            <div class="footer">Parte I: Fundamentos y Variables de Estado</div>
+        </div>
+        
+        <!-- Diapositiva 5: Presión -->
+        <div class="slide">
+            <h1 class="slide-title medium">Presión: Definición y Unidades</h1>
+            <div class="accent-bar"></div>
+            <div class="content-flex">
+                <div class="text-column">
+                    <h3 class="section-title">Definición Física</h3>
+                    <p>La presión (P) es la fuerza (F) ejercida por un gas por unidad de área (A) sobre las paredes del recipiente que lo contiene. Es una magnitud escalar.</p>
+                     <div class="formula-box" style="width:100%">
+                         <div class="formula" style="font-size: 28px;">$$P = \frac{Fuerza}{Área} = \frac{N}{m^2} = Pascal (Pa)$$</div>
+                    </div>
+                    <h3 class="section-title">Unidades Comunes y Equivalencias</h3>
+                    <table class="units-table">
+                        <tr><td>1 atmósfera (atm)</td><td>= 760 mmHg</td></tr>
+                        <tr><td>760 mmHg</td><td>= 760 torr</td></tr>
+                        <tr><td>1 atm</td><td>= 101,325 Pa</td></tr>
+                        <tr><td>1 bar</td><td>= 100,000 Pa</td></tr>
+                    </table>
+                </div>
+                <div class="visual-column">
+                    <div class="image-container">
+                        <img alt="Ejemplos de presión" src="ChatGPT Image 20 oct 2025, 12_36_08.png" />
+                        <div class="image-caption">Un área de contacto pequeña (cuchillo) concentra la fuerza, creando una alta presión. Un área grande (raquetas de nieve) la distribuye.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer">Parte I: Fundamentos y Variables de Estado</div>
+        </div>
 
+        <!-- Diapositiva 6: Barómetro -->
+        <div class="slide">
+            <h1 class="slide-title medium">Medición de la Presión Atmosférica</h1>
+            <div class="accent-bar"></div>
+            <div class="content-flex">
+                <div class="text-column">
+                    <h3 class="section-title">El Barómetro de Torricelli</h3>
+                    <p>La presión atmosférica es la fuerza que ejerce el peso de la columna de aire de la atmósfera. Torricelli demostró que esta presión puede equilibrar una columna de mercurio de 760 mm de altura a nivel del mar.</p>
+                    <h3 class="section-title">Deducción Física</h3>
+                     <p>La presión ejercida por la columna de líquido es igual a la presión atmosférica.</p>
+                    <div class="note-box">
+                        <p>1. Fuerza = peso de la columna = $m \cdot g$</p>
+                        <p>2. Masa = densidad $\times$ volumen = $\delta \cdot (A \cdot h)$</p>
+                        <p>3. Presión = $\frac{Fuerza}{Área} = \frac{(\delta \cdot A \cdot h) \cdot g}{A}$</p>
+                        <p class="font-bold text-center mt-2">$$P = \delta \cdot g \cdot h$$</p>
+                    </div>
+                </div>
+                <div class="visual-column">
+                    <div class="image-container">
+                        <img alt="Barómetro de Torricelli" src="https://page.gensparksite.com/slides_images/47f1815efabf15f8de5935252124c199.png" />
+                        <div class="image-caption">La presión del aire sobre la cubeta sostiene el peso de la columna de mercurio.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer">Parte I: Fundamentos y Variables de Estado</div>
+        </div>
+
+<!-- Diapositiva 7: Manómetros -->
+        <div class="slide">
+            <h1 class="slide-title medium">Medición de la Presión de un Gas</h1>
+            <div class="accent-bar"></div>
+            <p class="text-center text-lg text-gray-600 mb-4">Los manómetros miden la presión de un gas confinado comparándola con una presión de referencia.</p>
+            
+            <div class="content-flex items-center gap-8 mt-6">
+                
+                <!-- Columna de la Imagen -->
+                <div class="visual-column" style="flex: 0 0 45%;">
+                    <img src="Moglfm2921_Manómetro_abierto.jpg" alt="Diagrama de un manómetro de tubo abierto" class="max-w-full rounded-lg shadow-md border"/>
+                </div>
+                
+                <!-- Columna de las Fórmulas y Explicaciones -->
+                <div class="text-column">
+                    <div>
+                        <h3 class="section-title">P<sub>gas</sub> > P<sub>atm</sub></h3>
+                        <p class="formula-box text-center mt-2 text-lg">$$P_{gas} = P_{atm} + h$$</p>
+                    </div>
+                    <div class="mt-4">
+                        <h3 class="section-title">P<sub>gas</sub> < P<sub>atm</sub></h3>
+                        <p class="formula-box text-center mt-2 text-lg">$$P_{gas} = P_{atm} - h$$</p>
+                    </div>
+                     <div class="mt-4">
+                        <h3 class="section-title">Rama Cerrada</h3>
+                        <p class="formula-box text-center mt-2 text-lg">$$P_{gas} = h$$</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+            <div class="footer">Parte II: Leyes Empíricas de los Gases</div>
+        </div>
+
+        <!-- Diapositiva 9: Ley de Boyle (INTERACTIVA) -->
+        <div class="slide" id="boyle-applet">
+            <h1 class="slide-title medium">Explorador Interactivo: Ley de Boyle</h1>
+            <div class="accent-bar"></div>
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
                 <div class="space-y-4 lg:col-span-1">
                     <h3 class="font-semibold text-lg text-slate-800 border-b pb-1 mb-3">Variables</h3>
                     <div>
                         <label for="boyle-volume" class="block text-sm font-medium text-slate-700 mb-1">Volumen (V)</label>
-                         <div class="flex items-center space-x-2">
+                        <div class="flex items-center space-x-2">
                             <input type="range" id="boyle-volume" min="1" max="10" step="0.1" value="4.0" class="flex-grow">
                             <span id="boyle-volume-value" class="value-display">4.0 L</span>
                         </div>
-                         <p class="text-xs text-slate-500 mt-1">Ajusta el volumen para ver cómo cambia la presión.</p>
+                        <p class="text-xs text-slate-500 mt-1">Ajusta el volumen para ver cómo cambia la presión.</p>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-1">Presión (P) <span class="text-xs italic text-slate-500">(Calculada)</span></label>
-                         <div class="flex items-center space-x-2">
-
-                            <span id="boyle-pressure-calculated-value" class="value-display w-full text-center">1.0 atm</span>
+                        <div class="flex items-center space-x-2">
+                            <span id="boyle-pressure-calculated-value" class="value-display-full">1.0 atm</span>
                         </div>
                     </div>
-
-                     <h3 class="font-semibold text-lg text-slate-800 border-b pb-1 mb-3 pt-4">Constantes (Ajustables)</h3>
-                     <div>
+                    <h3 class="font-semibold text-lg text-slate-800 border-b pb-1 mb-3 pt-4">Constantes (Ajustables)</h3>
+                    <div>
                         <label for="boyle-temp" class="block text-sm font-medium text-slate-700 mb-1">Temperatura (T)</label>
                         <div class="flex items-center space-x-2">
                             <input type="number" id="boyle-temp" min="50" max="1000" step="10" value="300">
                             <span class="text-sm text-slate-600">K</span>
                         </div>
                     </div>
-                     <div>
+                    <div>
                         <label for="boyle-moles" class="block text-sm font-medium text-slate-700 mb-1">Moles (n)</label>
                         <div class="flex items-center space-x-2">
                             <input type="number" id="boyle-moles" min="0.1" max="5" step="0.1" value="0.16">
                             <span class="text-sm text-slate-600">mol</span>
                         </div>
                     </div>
-                     <div class="text-center mt-4 p-3 bg-blue-50 rounded-md border border-blue-200">
+                    <div class="text-center mt-4 p-3 bg-blue-50 rounded-md border border-blue-200">
                         <span class="font-semibold text-blue-800">Constante (P × V ≈ nRT):</span>
                         <span id="boyle-constant" class="font-mono ml-2 text-blue-900">4.00</span>
                     </div>
                 </div>
-
                 <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <h3 class="font-semibold text-lg text-slate-800 mb-2 text-center">Simulación</h3>
@@ -185,7 +484,7 @@
                             <div id="boyle-piston" class="piston" style="height: 60%;"></div>
                         </div>
                     </div>
-                     <div>
+                    <div>
                         <h3 class="font-semibold text-lg text-slate-800 mb-2 text-center">Gráfico P vs V</h3>
                         <div class="chart-container">
                             <canvas id="boyle-chart"></canvas>
@@ -193,60 +492,107 @@
                     </div>
                 </div>
             </div>
-        </section>
+            <div class="footer">Parte II: Leyes Empíricas de los Gases</div>
+        </div>
 
-        <section id="charles" class="bg-white p-6 rounded-xl shadow-lg border border-slate-200">
-            <h2 class="text-2xl font-semibold text-blue-700 mb-4 flex items-center">
-                <span class="lucide mr-2"></span> Ley de Charles (V vs T)
-            </h2>
-            <p class="mb-4 text-slate-700">A <strong class="font-semibold">presión (P)</strong> y <strong class="font-semibold">cantidad de gas (n)</strong> constantes, el volumen (V) es directamente proporcional a la temperatura absoluta (T). <strong class="font-semibold">(V₁/T₁ = V₂/T₂)</strong></p>
+        <!-- Diapositiva 10: Linearización de Boyle -->
+        <div class="slide" id="boyle-linear-applet">
+            <h1 class="slide-title medium">Análisis de Datos: Linearización de Boyle</h1>
+            <div class="accent-bar"></div>
+            <div class="content-flex">
+                <div class="text-column">
+                    <h3 class="section-title">Transformando la Hipérbola</h3>
+                    <p>En la ciencia experimental, es mucho más fácil y preciso trabajar con líneas rectas que con curvas. La relación de Boyle ($PV=k$) se puede reorganizar como:</p>
+                    <p class="formula-box text-center text-2xl">$$P = k \cdot \frac{1}{V}$$</p>
+                    <p>Esta ecuación tiene la forma de una recta, $y = mx + b$, donde:</p>
+                    <ul class="list-disc pl-5 mt-4 space-y-2 text-lg">
+                        <li>$y = P$ (la presión)</li>
+                        <li>$x = 1/V$ (el inverso del volumen)</li>
+                        <li>$m = k$ (la pendiente es la constante de Boyle)</li>
+                        <li>$b = 0$ (la recta pasa por el origen)</li>
+                    </ul>
+                    <div class="note-box">Graficar P vs. 1/V es un método estándar para verificar experimentalmente la Ley de Boyle y calcular la constante k a partir de la pendiente.</div>
+                </div>
+                <div class="visual-column">
+                     <h3 class="font-semibold text-lg text-slate-800 mb-2 text-center">Gráfico P vs 1/V (Dinámico)</h3>
+                    <div class="chart-container h-[400px]">
+                        <canvas id="boyle-linear-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="footer">Parte II: Leyes Empíricas de los Gases</div>
+        </div>
 
-             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+        <!-- Diapositiva 11 (NUEVA): Ley de Charles (Formal) -->
+        <div class="slide">
+            <h1 class="slide-title medium">Ley de Charles: Relación Volumen-Temperatura</h1>
+            <div class="accent-bar"></div>
+            <div class="content-flex" style="max-width: 800px; margin: 0 auto;">
+                <div class="text-column">
+                    <h3 class="section-title">Enunciado (1787)</h3>
+                    <p>"A <strong>presión y cantidad de gas constantes</strong>, el volumen de un gas es directamente proporcional a su temperatura absoluta."</p>
+                    <p class="mt-4">Al calentar un gas, este se expande. Esta relación a presión constante se llama <strong>isobara</strong>. La relación es lineal solo si la temperatura se mide en Kelvin.</p>
+                    <h3 class="section-title mt-6">El Cero Absoluto</h3>
+                    <p>Al extrapolar los gráficos de V vs. T para diferentes gases, todos convergen en un punto donde el volumen teórico sería cero: -273.15 °C. Este es el origen de la escala Kelvin (0 K).</p>
+                    <div class="formula-box mt-6">
+                        <div class="formula-label">Expresión Matemática</div>
+                        <div class="formula">$$\frac{V}{T} = k$$</div>
+                         <p class="font-bold mt-2">Para dos estados (1 y 2) del mismo gas en las mismas condiciones:</p>
+                        <p class="font-bold mt-2 text-2xl">$$\frac{V_1}{T_1} = \frac{V_2}{T_2}$$</p>
+                    </div>
+                </div>
+            </div>
+            <div class="footer">Parte II: Leyes Empíricas de los Gases</div>
+        </div>
+
+        <!-- Diapositiva 12: Ley de Charles (INTERACTIVA) -->
+        <div class="slide" id="charles-applet">
+            <h1 class="slide-title medium">Explorador Interactivo: Ley de Charles</h1>
+            <div class="accent-bar"></div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
                 <div class="space-y-4 lg:col-span-1">
                     <h3 class="font-semibold text-lg text-slate-800 border-b pb-1 mb-3">Variables</h3>
                     <div>
                         <label for="charles-temp" class="block text-sm font-medium text-slate-700 mb-1">Temperatura (T)</label>
-                         <div class="flex items-center space-x-2">
+                        <div class="flex items-center space-x-2">
                             <input type="range" id="charles-temp" min="50" max="1000" step="10" value="300" class="flex-grow">
                             <span id="charles-temp-value" class="value-display">300 K</span>
                         </div>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-1">Volumen (V) <span class="text-xs italic text-slate-500">(Calculado)</span></label>
-                         <div class="flex items-center space-x-2">
+                        <div class="flex items-center space-x-2">
                             <span id="charles-volume-value" class="value-display-full">3.9 L</span>
                         </div>
                     </div>
-                     <h3 class="font-semibold text-lg text-slate-800 border-b pb-1 mb-3 pt-4">Constantes (Ajustables)</h3>
-                     <div>
+                    <h3 class="font-semibold text-lg text-slate-800 border-b pb-1 mb-3 pt-4">Constantes (Ajustables)</h3>
+                    <div>
                         <label for="charles-pressure" class="block text-sm font-medium text-slate-700 mb-1">Presión (P)</label>
                         <div class="flex items-center space-x-2">
                             <input type="number" id="charles-pressure" min="0.1" max="10" step="0.1" value="1.0">
                             <span class="text-sm text-slate-600">atm</span>
                         </div>
                     </div>
-                     <div>
+                    <div>
                         <label for="charles-moles" class="block text-sm font-medium text-slate-700 mb-1">Moles (n)</label>
                         <div class="flex items-center space-x-2">
                             <input type="number" id="charles-moles" min="0.1" max="5" step="0.1" value="0.16">
                             <span class="text-sm text-slate-600">mol</span>
                         </div>
                     </div>
-                     <div class="text-center mt-4 p-3 bg-blue-50 rounded-md border border-blue-200">
+                    <div class="text-center mt-4 p-3 bg-blue-50 rounded-md border border-blue-200">
                         <span class="font-semibold text-blue-800">Constante (V / T ≈ nR/P):</span>
                         <span id="charles-constant" class="font-mono ml-2 text-blue-900">0.0131</span>
                     </div>
                 </div>
-
                 <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
-                     <div>
+                    <div>
                         <h3 class="font-semibold text-lg text-slate-800 mb-2 text-center">Simulación</h3>
                         <div id="charles-container" class="gas-container relative h-[250px]">
                             <div id="charles-piston" class="piston" style="height: 50%;"></div>
-                           
                         </div>
                     </div>
-                     <div>
+                    <div>
                         <h3 class="font-semibold text-lg text-slate-800 mb-2 text-center">Gráfico V vs T</h3>
                         <div class="chart-container">
                             <canvas id="charles-chart"></canvas>
@@ -254,59 +600,104 @@
                     </div>
                 </div>
             </div>
-        </section>
+            <div class="footer">Parte II: Leyes Empíricas de los Gases</div>
+        </div>
 
-        <section id="avogadro" class="bg-white p-6 rounded-xl shadow-lg border border-slate-200">
-            <h2 class="text-2xl font-semibold text-blue-700 mb-4 flex items-center">
-                <span class="lucide mr-2"></span> Ley de Avogadro (V vs n)
-            </h2>
-            <p class="mb-4 text-slate-700">A <strong class="font-semibold">presión (P)</strong> y <strong class="font-semibold">temperatura (T)</strong> constantes, el volumen (V) es directamente proporcional a la cantidad de gas (n). <strong class="font-semibold">(V₁/n₁ = V₂/n₂)</strong></p>
+        <!-- Diapositiva 13: Ley de Gay-Lussac -->
+        <div class="slide">
+            <h1 class="slide-title medium">Ley de Gay-Lussac: Relación Presión-Temperatura</h1>
+            <div class="accent-bar"></div>
+            <div class="content-flex">
+                <div class="text-column">
+                    <h3 class="section-title">Enunciado (1802)</h3>
+                    <p>"A <strong>volumen y cantidad de gas constantes</strong>, la presión de un gas es directamente proporcional a su temperatura absoluta."</p>
+                    <p class="mt-4">Por esta razón, la presión dentro de un neumático aumenta en un día caluroso. Esta relación se conoce como una <strong>isocora</strong>.</p>
+                     <div class="note-box">
+                       <p class="font-bold text-center text-xl">$$\frac{P_1}{T_1} = \frac{P_2}{T_2}$$</p>
+                    </div>
+                </div>
+                <div class="visual-column">
+                    <div class="formula-box">
+                        <div class="formula-label">Expresión Matemática</div>
+                        <div class="formula">$$\frac{P}{T} = k$$</div>
+                    </div>
+                     <div class="image-container">
+                        <svg height="250" viewbox="0 0 300 250" width="300"><rect fill="#e2e8f0" height="150" rx="10" stroke="#4a5568" stroke-width="2" width="120" x="90" y="40"></rect><circle cx="210" cy="95" fill="white" r="30" stroke="#4a5568" stroke-width="2"></circle><line stroke="#f56565" stroke-width="3" x1="210" x2="235" y1="95" y2="75"></line><circle cx="210" cy="95" fill="#4a5568" r="4"></circle><path d="M110,200 Q125,170 140,200 Q155,170 170,200 Q185,170 200,200" fill="none" stroke="#ed8936" stroke-width="4"></path></svg>
+                        <div class="image-caption">Al calentar un recipiente rígido, la presión aumenta porque las moléculas chocan con más fuerza y frecuencia.</div>
+                    </div>
+                </div>
+            </div>
+             <div class="footer">Parte II: Leyes Empíricas de los Gases</div>
+        </div>
 
-             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+        <!-- Diapositiva 14 (NUEVA): Ley de Avogadro (Formal) -->
+        <div class="slide">
+             <h1 class="slide-title medium">Ley de Avogadro: Relación Volumen-Cantidad</h1>
+            <div class="accent-bar"></div>
+            <div class="content-flex" style="max-width: 800px; margin: 0 auto;">
+                <div class="text-column">
+                    <h3 class="section-title">Enunciado (1811)</h3>
+                    <p>"A <strong>presión y temperatura constantes</strong>, volúmenes iguales de diferentes gases contienen el mismo número de moléculas."</p>
+                    <p class="mt-4">Esto implica que el volumen de un gas es directamente proporcional al número de moles (n).</p>
+                     <div class="formula-box mt-6">
+                        <div class="formula-label">Expresión Matemática</div>
+                        <div class="formula" style="font-size: 32px;">$$\frac{V}{n} = k \quad \text{o} \quad \frac{V_1}{n_1} = \frac{V_2}{n_2}$$</div>
+                    </div>
+                    <h3 class="section-title mt-6">Volumen Molar</h3>
+                    <p>Una consecuencia clave es que <strong>1 mol</strong> de cualquier gas ideal en <strong>Condiciones Normales de Presión y Temperatura (CNPT: 1 atm y 0°C)</strong> ocupa siempre el mismo volumen: <strong>22.4 L</strong>.</p>
+                </div>
+            </div>
+            <div class="footer">Parte II: Leyes Empíricas de los Gases</div>
+        </div>
+
+        <!-- Diapositiva 15: Ley de Avogadro (INTERACTIVA) -->
+        <div class="slide" id="avogadro-applet">
+             <h1 class="slide-title medium">Explorador Interactivo: Ley de Avogadro</h1>
+            <div class="accent-bar"></div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
                 <div class="space-y-4 lg:col-span-1">
-                     <h3 class="font-semibold text-lg text-slate-800 border-b pb-1 mb-3">Variables</h3>
+                    <h3 class="font-semibold text-lg text-slate-800 border-b pb-1 mb-3">Variables</h3>
                     <div>
                         <label for="avogadro-moles-slider" class="block text-sm font-medium text-slate-700 mb-1">Cantidad de Gas (n)</label>
-                         <div class="flex items-center space-x-2">
+                        <div class="flex items-center space-x-2">
                             <input type="range" id="avogadro-moles-slider" min="0.1" max="2" step="0.05" value="0.5" class="flex-grow">
                             <span id="avogadro-moles-value" class="value-display">0.50 mol</span>
                         </div>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-slate-700 mb-1">Volumen (V) <span class="text-xs italic text-slate-500">(Calculado)</span></label>
-                         <div class="flex items-center space-x-2">
+                        <div class="flex items-center space-x-2">
                             <span id="avogadro-volume-value" class="value-display-full">11.2 L</span>
                         </div>
                     </div>
-                     <h3 class="font-semibold text-lg text-slate-800 border-b pb-1 mb-3 pt-4">Constantes (Ajustables)</h3>
-                     <div>
+                    <h3 class="font-semibold text-lg text-slate-800 border-b pb-1 mb-3 pt-4">Constantes (Ajustables)</h3>
+                    <div>
                         <label for="avogadro-pressure" class="block text-sm font-medium text-slate-700 mb-1">Presión (P)</label>
                         <div class="flex items-center space-x-2">
                             <input type="number" id="avogadro-pressure" min="0.1" max="10" step="0.1" value="1.0">
                             <span class="text-sm text-slate-600">atm</span>
                         </div>
                     </div>
-                     <div>
+                    <div>
                         <label for="avogadro-temp" class="block text-sm font-medium text-slate-700 mb-1">Temperatura (T)</label>
                         <div class="flex items-center space-x-2">
                             <input type="number" id="avogadro-temp" min="50" max="1000" step="10" value="273">
                             <span class="text-sm text-slate-600">K</span>
                         </div>
                     </div>
-                     <div class="text-center mt-4 p-3 bg-blue-50 rounded-md border border-blue-200">
+                    <div class="text-center mt-4 p-3 bg-blue-50 rounded-md border border-blue-200">
                         <span class="font-semibold text-blue-800">Constante (V / n ≈ RT/P):</span>
                         <span id="avogadro-constant" class="font-mono ml-2 text-blue-900">22.4</span> L/mol
                     </div>
                 </div>
-
-                 <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
-                     <div>
+                <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
                         <h3 class="font-semibold text-lg text-slate-800 mb-2 text-center">Simulación</h3>
                         <div id="avogadro-container" class="gas-container relative h-[250px]">
                             <div id="avogadro-piston" class="piston" style="height: 50%;"></div>
                         </div>
                     </div>
-                     <div>
+                    <div>
                         <h3 class="font-semibold text-lg text-slate-800 mb-2 text-center">Gráfico V vs n</h3>
                         <div class="chart-container">
                             <canvas id="avogadro-chart"></canvas>
@@ -314,574 +705,670 @@
                     </div>
                 </div>
             </div>
-        </section>
-
-        <section id="ideal-gas" class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl shadow-lg border border-blue-200">
-            <h2 class="text-2xl font-semibold text-indigo-700 mb-4 flex items-center">
-                <span class="lucide mr-2">combine</span> Ley del Gas Ideal (PV = nRT)
-            </h2>
-            <p class="mb-4 text-slate-700">Combina las leyes de Boyle, Charles y Avogadro: <strong class="font-semibold">PV = nRT</strong>. R es la constante de los gases ideales.</p>
-            <p class="text-slate-600">Usa los controles y gráficos anteriores para explorar cómo las variables se relacionan cuando otras se mantienen constantes. Cambia las constantes para ver cómo afectan las curvas.</p>
-             <div class="mt-4 text-sm text-slate-500">
-                <p><strong class="font-semibold">R (Constante de los gases):</strong> 0.0821 L·atm/(mol·K)</p>
+            <div class="footer">Parte II: Leyes Empíricas de los Gases</div>
+        </div>
+        
+        <!-- Diapositiva 16: Ley de Dalton -->
+        <div class="slide">
+             <h1 class="slide-title medium">Ley de Dalton: Mezclas de Gases</h1>
+            <div class="accent-bar"></div>
+            <div class="content-flex" style="max-width: 800px; margin: 0 auto;">
+                <div class="text-column">
+                    <h3 class="section-title">Ley de las Presiones Parciales</h3>
+                    <p>En una mezcla de gases que no reaccionan entre sí, la <strong>presión total</strong> es la suma de las <strong>presiones parciales</strong> que cada gas ejercería si estuviera solo en el recipiente.</p>
+                     <p class="formula-box text-xl text-center">$$P_{Total} = P_A + P_B + P_C + ...$$</p>
+                     <h3 class="section-title">Fracción Molar (X)</h3>
+                     <p>La presión parcial de un gas (P<sub>A</sub>) es igual a su fracción molar (X<sub>A</sub>) multiplicada por la presión total.</p>
+                      <p class="formula-box text-xl text-center">$$P_A = X_A \cdot P_{Total} \quad \text{donde} \quad X_A = \frac{n_A}{n_{Total}}$$</p>
+                </div>
             </div>
-        </section>
+            <div class="footer">Parte II: Leyes Empíricas de los Gases</div>
+        </div>
+        
+        <!-- Diapositiva 17 (NUEVA): Applet Ley de Dalton -->
+        <div class="slide" id="dalton-applet">
+            <h1 class="slide-title medium">Explorador Interactivo: Ley de Dalton</h1>
+            <div class="accent-bar"></div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+                <div class="space-y-4 lg:col-span-1">
+                    <h3 class="font-semibold text-lg text-slate-800 border-b pb-1 mb-3">Variables (Cantidad de Gas)</h3>
+                    <div>
+                        <label for="dalton-moles-a" class="block text-sm font-medium text-cyan-700 mb-1">Moles Gas A (Azul)</label>
+                        <div class="flex items-center space-x-2">
+                            <input type="range" id="dalton-moles-a" min="0.0" max="1.0" step="0.05" value="0.2" class="flex-grow">
+                            <span id="dalton-moles-a-value" class="value-display">0.20 mol</span>
+                        </div>
+                    </div>
+                    <div>
+                        <label for="dalton-moles-b" class="block text-sm font-medium text-orange-700 mb-1">Moles Gas B (Naranja)</label>
+                        <div class="flex items-center space-x-2">
+                            <input type="range" id="dalton-moles-b" min="0.0" max="1.0" step="0.05" value="0.3" class="flex-grow">
+                            <span id="dalton-moles-b-value" class="value-display">0.30 mol</span>
+                        </div>
+                    </div>
+                    <h3 class="font-semibold text-lg text-slate-800 border-b pb-1 mb-3 pt-4">Constantes</h3>
+                     <div>
+                        <label for="dalton-volume" class="block text-sm font-medium text-slate-700 mb-1">Volumen (V)</label>
+                        <div class="flex items-center space-x-2"><input type="number" id="dalton-volume" min="1" max="50" step="1" value="10"><span class="text-sm text-slate-600">L</span></div>
+                    </div>
+                    <div>
+                        <label for="dalton-temp" class="block text-sm font-medium text-slate-700 mb-1">Temperatura (T)</label>
+                        <div class="flex items-center space-x-2"><input type="number" id="dalton-temp" min="50" max="1000" step="10" value="298"><span class="text-sm text-slate-600">K</span></div>
+                    </div>
+                </div>
+                <div class="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="font-semibold text-lg text-slate-800 mb-2 text-center">Simulación de Mezcla</h3>
+                        <div id="dalton-container" class="gas-container relative h-[250px] bg-slate-100">
+                           <!-- Partículas se añadirán aquí -->
+                        </div>
+                         <div class="p-4 mt-4 bg-blue-100 rounded-md border-2 border-blue-300">
+                             <div class="flex justify-between items-center text-lg">
+                                <span class="font-bold text-blue-800">Presión Total (P<sub>T</sub>):</span>
+                                <span id="dalton-pressure-total" class="font-mono font-bold text-blue-900">0.00 atm</span>
+                            </div>
+                         </div>
+                    </div>
+                    <div class="space-y-3">
+                         <h3 class="font-semibold text-lg text-slate-800 mb-2 text-center">Gráfico de Presiones</h3>
+                         <div class="chart-container h-[250px]">
+                            <canvas id="dalton-chart"></canvas>
+                        </div>
+                         <div class="p-3 bg-cyan-50 rounded-md border border-cyan-200">
+                            <div class="flex justify-between items-center">
+                                <span class="font-semibold text-cyan-800">P<sub>A</sub> (X<sub>A</sub>=<span id="dalton-fraction-a" class="font-mono">0.00</span>):</span>
+                                <span id="dalton-pressure-a" class="font-mono text-cyan-900">0.00 atm</span>
+                            </div>
+                         </div>
+                         <div class="p-3 bg-orange-50 rounded-md border border-orange-200">
+                             <div class="flex justify-between items-center">
+                                <span class="font-semibold text-orange-800">P<sub>B</sub> (X<sub>B</sub>=<span id="dalton-fraction-b" class="font-mono">0.00</span>):</span>
+                                <span id="dalton-pressure-b" class="font-mono text-orange-900">0.00 atm</span>
+                            </div>
+                         </div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer">Parte II: Leyes Empíricas de los Gases</div>
+        </div>
 
-    </main>
+        <!-- Diapositiva 18: Fenómenos de Transporte: Difusión y Efusión -->
+        <div class="slide" id="slide-applet">
+            <h1 class="slide-title medium">Fenómenos de Transporte: Difusión y Efusión</h1>
+            <div class="accent-bar"></div>
+            <div class="content-flex gap-6">
+                <div class="w-1/2">
+                    <div class="simulation-container">
+                        <h2 class="text-xl font-semibold text-gray-700 mb-2 text-center">Difusión de Gases</h2>
+                        <p class="text-xs text-gray-600 text-center mb-3">Observa cómo gases de diferentes masas se mezclan a distintas velocidades una vez que se elimina la barrera.</p>
+                        <div class="gas-selector-container text-xs">
+                            <div><label for="selectGasA_s6">Gas A (Izq.):</label><select id="selectGasA_s6" class="gas-selector"></select></div>
+                            <div><label for="selectGasB_s6">Gas B (Der.):</label><select id="selectGasB_s6" class="gas-selector"></select></div>
+                        </div>
+                        <canvas id="diffusionCanvas_s6" width="550" height="200"></canvas>
+                        <div class="particle-info text-xs">
+                            <div class="particle-legend"><span id="gasADot_s6" class="particle-dot"></span> <span id="gasAName_s6">Gas A</span></div>
+                            <div class="particle-legend"><span id="gasBDot_s6" class="particle-dot"></span> <span id="gasBName_s6">Gas B</span></div>
+                        </div>
+                        <div class="text-center mt-3"><button id="startDiffusion_s6" class="btn btn-primary text-sm"><i class="fas fa-play mr-1"></i>Iniciar Difusión</button></div>
+                        <p id="diffusionExplanation_s6" class="explanation text-center"></p>
+                    </div>
+                </div>
+                <div class="w-1/2">
+                    <div class="simulation-container">
+                        <h2 class="text-xl font-semibold text-gray-700 mb-2 text-center">Efusión de Gases</h2>
+                        <p class="text-xs text-gray-600 text-center mb-3">Observa cómo un gas escapa a través de un pequeño orificio. Los gases más ligeros escapan más rápido.</p>
+                        <div class="gas-selector-container text-xs">
+                            <div><label for="selectGasEffusion_s6">Seleccionar Gas:</label><select id="selectGasEffusion_s6" class="gas-selector"></select></div>
+                        </div>
+                        <canvas id="effusionCanvas_s6" width="550" height="200"></canvas>
+                        <div class="particle-info text-xs">
+                            <div class="particle-legend"><span id="gasEffusionDot_s6" class="particle-dot"></span> <span id="gasEffusionName_s6">Gas</span></div>
+                            <p id="effusionParticleCount_s6" class="text-xs text-gray-600"></p>
+                        </div>
+                        <div class="text-center mt-3"><button id="startEffusion_s6" class="btn btn-primary text-sm"><i class="fas fa-play mr-1"></i>Iniciar Efusión</button></div>
+                        <p id="effusionExplanation_s6" class="explanation text-center"></p>
+                    </div>
+                </div>
+            </div>
+            <div class="footer">Parte II: Leyes Empíricas de los Gases</div>
+        </div>
 
-    <footer class="text-center mt-12 text-sm text-slate-500">
-        <p>Simulaciones y gráficos con fines educativos.</p>
-    </footer>
+        <!-- Diapositiva 19: Ley de Graham (Empírica) -->
+        <div class="slide">
+            <h1 class="slide-title medium">Ley de Graham: Relación Velocidad-Masa</h1>
+            <div class="accent-bar"></div>
+            <div class="content-flex">
+                <div class="text-column">
+                    <h3 class="section-title">Enunciado Experimental (1831)</h3>
+                    <p>"A temperatura y presión constantes, la velocidad de difusión o efusión de un gas es <strong>inversamente proporcional a la raíz cuadrada de su masa molar</strong>."</p>
+                    <p class="mt-2">En pocas palabras: los gases más ligeros se mueven más rápido.</p>
+                    <div class="formula-box">
+                        <div class="formula-label">Para dos gases A y B</div>
+                        <div class="formula" style="font-size: 32px;">$$\frac{velocidad_A}{velocidad_B} = \sqrt{\frac{Masa Molar_B}{Masa Molar_A}}$$</div>
+                    </div>
+                    <div class="note-box">Esta ley nos permite predecir cuantitativamente qué tan rápido se moverá un gas en comparación con otro.</div>
+                </div>
+                <div class="visual-column">
+                    <h3 class="section-title">Demostración Clásica</h3>
+                    <p class="text-center mb-4">El NH₃ (17 g/mol) es más ligero que el HCl (36.5 g/mol). El NH₃ viaja más rápido, por lo que el anillo de reacción (NH₄Cl) se forma más cerca del extremo del HCl.</p>
+                    <div class="graham-tube">
+                        <div class="graham-cotton graham-cotton-left"></div>
+                        <div class="graham-cotton graham-cotton-right"></div>
+                        <div class="graham-ring"></div>
+                        <div class="graham-label" style="left: 10%;">HCl</div>
+                        <div class="graham-label" style="right: 5%;">NH₃</div>
+                        <div class="graham-label" style="left: 41%;">NH₄Cl</div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer">Parte II: Leyes Empíricas de los Gases</div>
+        </div>
 
-    <script>
-        // --- Constants and Global Config ---
-        const R = 0.0821; // Gas constant L.atm/(mol.K)
-        const particleCountFactor = 70; // Visual particles per mole
-        const animationSpeedMultiplier = 3; // Visual speed multiplier
-        const TEMP_MIN_COLOR = 100; // K - Temp for full blue
-        const TEMP_MAX_COLOR = 800; // K - Temp for full red
-        const TEMP_NEUTRAL = 300; // K - Temp for neutral color (white-ish)
+        <!-- Diapositiva 20: La Ecuación del Gas Ideal -->
+        <div class="slide">
+            <h1 class="slide-title medium">La Ecuación del Gas Ideal</h1>
+            <div class="accent-bar"></div>
+            <div class="content-flex">
+                <div class="text-column">
+                    <h3 class="section-title">La Síntesis de las Leyes</h3>
+                    <p>La ecuación del gas ideal unifica las relaciones descubiertas por Boyle, Charles y Avogadro en una sola expresión matemática que relaciona las cuatro variables de estado.</p>
+                    <ul class="list-disc pl-5 mt-4 text-lg">
+                        <li>$V \propto 1/P$ (Boyle)</li>
+                        <li>$V \propto T$ (Charles)</li>
+                        <li>$V \propto n$ (Avogadro)</li>
+                    </ul>
+                     <p class="text-center text-2xl font-bold mt-4">$$V \propto \frac{nT}{P} \implies PV = nRT$$</p>
+                    <h3 class="section-title">La Constante Universal R</h3>
+                    <p>R es la constante de proporcionalidad. Su valor depende de las unidades usadas para P y V.</p>
+                     <table class="units-table">
+                        <tr><td>0.08206</td><td>L·atm / K·mol</td></tr>
+                        <tr><td>8.314</td><td>J / K·mol (Unidades SI)</td></tr>
+                    </table>
+                </div>
+                <div class="visual-column">
+                    <div class="formula-box" style="padding-top: 50px; padding-bottom: 50px;">
+                        <div class="formula-label">Ecuación General de los Gases Ideales</div>
+                        <div class="formula" style="font-size: 56px;">$$PV = nRT$$</div>
+                    </div>
+                    <div class="note-box">Un <strong>gas ideal</strong> es un modelo teórico. Los gases reales se comportan de forma ideal a <strong>bajas presiones</strong> y <strong>altas temperaturas</strong>.</div>
+                </div>
+            </div>
+            <div class="footer">Parte III: La Ecuación Unificada y Estequiometría</div>
+        </div>
 
-        // --- DOM Elements ---
-        // Boyle
-        // REMOVED: boylePressureSlider
-        const boyleVolumeSlider = document.getElementById('boyle-volume');
-        // REMOVED: boylePressureValue
-        const boyleVolumeValue = document.getElementById('boyle-volume-value');
-        const boylePressureCalculatedValue = document.getElementById('boyle-pressure-calculated-value'); // ADDED
-        const boyleTempInput = document.getElementById('boyle-temp');
-        const boyleMolesInput = document.getElementById('boyle-moles');
-        const boyleConstantDisplay = document.getElementById('boyle-constant');
-        const boyleContainer = document.getElementById('boyle-container');
-        const boylePiston = document.getElementById('boyle-piston');
-        const boyleChartCtx = document.getElementById('boyle-chart').getContext('2d');
+        <!-- Diapositiva 21: Aplicaciones de la Ecuación Ideal -->
+        <div class="slide">
+            <h1 class="slide-title medium">Aplicaciones de la Ecuación Ideal</h1>
+            <div class="accent-bar"></div>
+            <div class="content-grid">
+                <div class="text-column">
+                    <h3 class="section-title">Cálculo de Densidad ($\delta$)</h3>
+                    <p>Reorganizando la ecuación del gas ideal, podemos relacionar directamente la densidad de un gas con su presión, temperatura y masa molar (PM).</p>
+                    <div class="formula-box">
+                        <p>$PV = \frac{m}{PM}RT \implies P \cdot PM = \frac{m}{V} RT$</p>
+                        <div class="formula" style="font-size: 32px;">$$\delta = \frac{P \cdot PM}{RT}$$</div>
+                    </div>
+                </div>
+                <div class="text-column">
+                    <h3 class="section-title">Cálculo de Masa Molar (PM)</h3>
+                    <p>De manera similar, si conocemos la masa de una muestra de gas y las condiciones P, V y T que ocupa, podemos determinar su masa molar.</p>
+                    <div class="formula-box">
+                         <p>$PV = \frac{m}{PM}RT$</p>
+                         <div class="formula" style="font-size: 32px;">$$PM = \frac{mRT}{PV}$$</div>
+                    </div>
+                </div>
+            </div>
+             <div class="note-box w-10/12 mx-auto">Estas dos fórmulas son extremadamente útiles en el laboratorio para identificar sustancias gaseosas desconocidas.</div>
+            <div class="footer">Parte III: La Ecuación Unificada y Estequiometría</div>
+        </div>
 
-        // Charles (No changes needed here for Boyle simplification)
-        const charlesTempSlider = document.getElementById('charles-temp');
-        const charlesTempValue = document.getElementById('charles-temp-value');
-        const charlesVolumeValue = document.getElementById('charles-volume-value');
-        const charlesPressureInput = document.getElementById('charles-pressure');
-        const charlesMolesInput = document.getElementById('charles-moles');
-        const charlesConstantDisplay = document.getElementById('charles-constant');
-        const charlesContainer = document.getElementById('charles-container');
-        const charlesPiston = document.getElementById('charles-piston');
-        const charlesChartCtx = document.getElementById('charles-chart').getContext('2d');
+        <!-- Diapositiva 22: Estequiometría de Gases -->
+        <div class="slide">
+            <h1 class="slide-title medium">Estequiometría de Gases</h1>
+            <div class="accent-bar"></div>
+             <div class="content-grid">
+                <div class="text-column">
+                    <h3 class="section-title">Relaciones Volumen-Volumen</h3>
+                    <p>Gracias a la Ley de Avogadro, si una reacción ocurre a <strong>P y T constantes</strong>, la relación de moles dada por los coeficientes estequiométricos es también una <strong>relación de volúmenes</strong>.</p>
+                    <p class="text-center text-lg my-4">N₂(g) + 3H₂(g) $\rightarrow$ 2NH₃(g)</p>
+                    <p class="text-center note-box">1 L de N₂ reacciona con 3 L de H₂ para producir 2 L de NH₃.</p>
+                </div>
+                <div class="text-column">
+                     <h3 class="section-title">Cálculos en Condiciones Generales</h3>
+                    <p>Para problemas donde P y T no son constantes, la ecuación del gas ideal es el puente para convertir entre volumen y moles.</p>
+                    <div class="text-center mt-8">
+                        <span class="bg-blue-200 p-2 rounded">Volumen Gas A</span>
+                        <span class="mx-2 font-bold text-2xl">$\xrightarrow{PV=nRT}$</span>
+                        <span class="bg-green-200 p-2 rounded">Moles de A</span>
+                        <br/><br/>
+                        <span class="font-bold text-2xl ml-40">$\downarrow$ Estequiometría</span>
+                        <br/><br/>
+                        <span class="bg-blue-200 p-2 rounded">Volumen Gas B</span>
+                        <span class="mx-2 font-bold text-2xl">$\xleftarrow{PV=nRT}$</span>
+                        <span class="bg-green-200 p-2 rounded">Moles de B</span>
+                    </div>
+                </div>
+            </div>
+            <div class="footer">Parte III: La Ecuación Unificada y Estequiometría</div>
+        </div>
 
-        // Avogadro (No changes needed here for Boyle simplification)
-        const avogadroMolesSlider = document.getElementById('avogadro-moles-slider');
-        const avogadroMolesValue = document.getElementById('avogadro-moles-value');
-        const avogadroVolumeValue = document.getElementById('avogadro-volume-value');
-        const avogadroPressureInput = document.getElementById('avogadro-pressure');
-        const avogadroTempInput = document.getElementById('avogadro-temp');
-        const avogadroConstantDisplay = document.getElementById('avogadro-constant');
-        const avogadroContainer = document.getElementById('avogadro-container');
-        const avogadroPiston = document.getElementById('avogadro-piston');
-        const avogadroChartCtx = document.getElementById('avogadro-chart').getContext('2d');
+        <!-- Diapositiva 23: Teoría Cinético-Molecular de los Gases -->
+        <div class="slide">
+             <h1 class="slide-title medium">Teoría Cinético-Molecular de los Gases</h1>
+            <div class="accent-bar"></div>
+            <div class="content-flex">
+                <div class="text-column">
+                    <h3 class="section-title">Postulados del Modelo Ideal</h3>
+                    <ol class="space-y-4 text-lg">
+                        <li class="flex items-start"><div class="step-number">1</div><span>Las partículas tienen un <strong>volumen despreciable</strong> y están muy separadas.</span></li>
+                        <li class="flex items-start"><div class="step-number">2</div><span>Están en <strong>movimiento continuo, rápido y aleatorio</strong>.</span></li>
+                        <li class="flex items-start"><div class="step-number">3</div><span><strong>No existen fuerzas</strong> de atracción o repulsión entre ellas.</span></li>
+                        <li class="flex items-start"><div class="step-number">4</div><span>Las colisiones son <strong>perfectamente elásticas</strong> (la energía total se conserva).</span></li>
+                        <li class="flex items-start"><div class="step-number">5</div><span>La <strong>energía cinética promedio</strong> es directamente proporcional a la <strong>temperatura absoluta (K)</strong>.</span></li>
+                    </ol>
+                </div>
+                <div class="visual-column">
+                     <div class="image-container">
+                        <img alt="Moléculas de gas en movimiento" src="201533-114040501-2771-kinetic_theory.gif" />
+                         <p class="image-caption">La TCM explica las propiedades macroscópicas (como la presión) a partir del comportamiento de las partículas microscópicas.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="footer">Parte IV: El Modelo Teórico</div>
+        </div>
+
+        <!-- Diapositiva 24: El Origen Microscópico de la Presión -->
+        <div class="slide">
+             <h1 class="slide-title medium">El Origen Microscópico de la Presión</h1>
+            <div class="accent-bar"></div>
+            <div class="content-flex">
+                <div class="text-column">
+                    <h3 class="section-title">Colisiones y Presión</h3>
+                    <p>La presión que medimos es el resultado macroscópico de innumerables colisiones de las partículas del gas contra las paredes del recipiente.</p>
+                    <p>La magnitud de la presión depende de dos factores:</p>
+                    <ul class="list-disc pl-5 mt-4 space-y-2 text-lg">
+                        <li><strong>Frecuencia de las colisiones:</strong> Cuántas veces chocan las partículas por segundo. Depende de la densidad de partículas (N/V) y su velocidad.</li>
+                        <li><strong>Impulso de cada colisión:</strong> La fuerza de cada impacto. Depende de la masa y la velocidad de las partículas ($m \cdot v$).</li>
+                    </ul>
+                     <div class="formula-box mt-6 text-center text-lg">$$P \propto (\text{Frecuencia}) \times (\text{Impulso}) \propto \left(\frac{N}{V} \cdot v\right) \times (m \cdot v)$$
+                     <p class="font-bold text-xl mt-2">$$P \propto \frac{N}{V} m \overline{v^2}$$</p>
+                     </div>
+                </div>
+                <div class="visual-column">
+                     <div class="image-container">
+                        <img alt="Colisiones de gas" src="sdw.jpg" style="max-height: 400px;"/>
+                        <p class="image-caption">Cada colisión ejerce una pequeña fuerza. La suma de todas estas fuerzas por unidad de área es la presión.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="footer">Parte IV: El Modelo Teórico</div>
+        </div>
+
+        <!-- Diapositiva 25: Velocidad y Energía de las Moléculas -->
+        <div class="slide">
+             <h1 class="slide-title medium">Velocidad y Energía de las Moléculas</h1>
+            <div class="accent-bar"></div>
+             <div class="content-grid">
+                <div class="text-column">
+                    <h3 class="section-title">Velocidad Cuadrática Media (v<sub>rms</sub>)</h3>
+                    <p>No todas las partículas se mueven a la misma velocidad. La v<sub>rms</sub> es una medida del promedio de las velocidades moleculares.</p>
+                    <div class="formula-box">
+                        <div class="formula" style="font-size: 28px;">$$v_{rms} = \sqrt{\frac{3RT}{PM}}$$</div>
+                        <p>A mayor T, mayor velocidad. A mayor PM, menor velocidad.</p>
+                    </div>
+                </div>
+                 <div class="text-column">
+                    <h3 class="section-title">Energía Cinética Media (E<sub>c</sub>)</h3>
+                    <p>La TCM establece una conexión directa entre la energía de las moléculas y la temperatura que medimos.</p>
+                    <div class="formula-box">
+                        <p><strong>Por mol:</strong></p>
+                        <div class="formula" style="font-size: 28px;">$$E_{c, molar} = \frac{3}{2}RT$$</div>
+                        <p class="mt-4">¡A una T dada, la energía cinética media es la misma para todos los gases!</p>
+                    </div>
+                </div>
+            </div>
+             <div class="note-box w-10/12 mx-auto"><strong>Conclusión clave:</strong> La temperatura es una medida directa de la energía cinética promedio de las partículas de un gas.</div>
+            <div class="footer">Parte IV: El Modelo Teórico</div>
+        </div>
+
+        <!-- Diapositiva 26: Distribución de Velocidades Moleculares -->
+        <div class="slide">
+             <h1 class="slide-title medium">Distribución de Velocidades Moleculares</h1>
+            <div class="accent-bar"></div>
+            <p class="text-center text-lg text-gray-600 mb-4">Las velocidades de las partículas en un gas no son uniformes, siguen la distribución de Maxwell-Boltzmann.</p>
+             <div class="content-grid">
+                <div class="text-column text-center">
+                    <h3 class="section-title">Efecto de la Masa Molar (a T constante)</h3>
+                    <img src="F12.png" class="mx-auto my-4 rounded-lg shadow-md"/>
+                    <p class="image-caption">Gases más ligeros (menor PM) tienen velocidades promedio más altas y una distribución más amplia.</p>
+                </div>
+                <div class="text-column text-center">
+                    <h3 class="section-title">Efecto de la Temperatura (para un mismo gas)</h3>
+                    <img src="Molecular-speed-distributions-for-potassium-gas-obtained-from-the-Maxwell-Boltzmann.png" class="mx-auto my-4 rounded-lg shadow-md"/>
+                    <p class="image-caption">Al aumentar la temperatura, la velocidad promedio aumenta y la distribución de velocidades se ensancha.</p>
+                </div>
+            </div>
+            <div class="footer">Parte IV: El Modelo Teórico</div>
+        </div>
+
+        <!-- Diapositiva 27 (NUEVA): Origen Molecular de la Ley de Graham -->
+        <div class="slide">
+            <h1 class="slide-title medium">Origen Molecular de la Ley de Graham</h1>
+            <div class="accent-bar"></div>
+            <div class="content-flex items-center">
+                <div class="text-column">
+                    <h3 class="section-title">Conectando la TCM con Graham</h3>
+                    <p>La Teoría Cinético-Molecular nos da la herramienta para entender por qué funciona la Ley de Graham.</p>
+                    <ol class="space-y-4 mt-4">
+                        <li class="flex items-start">
+                            <div class="step-number" style="background-color: #ed8936;">1</div>
+                            <div><strong>Punto de partida:</strong> El postulado 5 de la TCM. A la misma temperatura (T), dos gases (A y B) tienen la <strong>misma energía cinética promedio</strong>. <br>$$E_{c,A} = E_{c,B}$$</div>
+                        </li>
+                        <li class="flex items-start">
+                            <div class="step-number" style="background-color: #ed8936;">2</div>
+                            <div><strong>Sustitución:</strong> Reemplazamos la energía cinética por su definición ($E_c = \frac{1}{2}mv^2$), usando la masa molar (M) y la velocidad cuadrática media (v).<br>$$\frac{1}{2} M_A v_A^2 = \frac{1}{2} M_B v_B^2$$</div>
+                        </li>
+                         <li class="flex items-start">
+                            <div class="step-number" style="background-color: #ed8936;">3</div>
+                            <div><strong>Reordenamiento:</strong> Agrupamos las velocidades a un lado y las masas molares al otro.<br>$$\frac{v_A^2}{v_B^2} = \frac{M_B}{M_A}$$</div>
+                        </li>
+                    </ol>
+                </div>
+                <div class="visual-column">
+                    <div class="formula-box">
+                        <div class="formula-label">Paso Final: Aplicar la raíz cuadrada</div>
+                        <div class="formula" style="font-size: 32px;">$$\frac{v_A}{v_B} = \sqrt{\frac{M_B}{M_A}}$$</div>
+                        <p class="mt-4 font-bold text-lg text-blue-800">¡Hemos deducido la Ley de Graham a partir de principios fundamentales!</p>
+                    </div>
+                </div>
+            </div>
+            <div class="footer">Parte IV: El Modelo Teórico</div>
+        </div>
+
+        <!-- Diapositiva 28 (NUEVA): Cálculos y Aplicaciones -->
+        <div class="slide">
+            <h1 class="slide-title medium">Cálculos y Aplicaciones de la Ley de Graham</h1>
+            <div class="accent-bar"></div>
+            <div class="content-flex">
+                <div class="text-column">
+                    <h3 class="section-title">Cálculo de Ejemplo</h3>
+                    <p>¿Cuántas veces más rápido efunde el <strong>Hidrógeno (H₂)</strong> que el <strong>Oxígeno (O₂)</strong> a la misma T?</p>
+                    <ul class="list-disc pl-5 mt-2 space-y-1">
+                        <li>Masa molar H₂ ≈ 2 g/mol</li>
+                        <li>Masa molar O₂ ≈ 32 g/mol</li>
+                    </ul>
+                    <div class="formula-box text-lg mt-3">
+                        $$\frac{v_{H_2}}{v_{O_2}} = \sqrt{\frac{M_{O_2}}{M_{H_2}}} = \sqrt{\frac{32}{2}} = \sqrt{16} = 4$$
+                    </div>
+                    <p class="font-bold text-center mt-2">El H₂ es 4 veces más rápido que el O₂.</p>
+                </div>
+                <div class="visual-column">
+                    <h3 class="section-title">Aplicaciones Clave</h3>
+                    <ul class="space-y-4 text-lg">
+                        <li class="flex items-start"><i class="fas fa-atom text-xl text-blue-600 mr-3 mt-1"></i><div><strong>Separación de Isótopos:</strong> Para enriquecer uranio (²³⁵UF₆ vs ²³⁸UF₆), aprovechando la mínima diferencia de velocidad.</div></li>
+                        <li class="flex items-start"><i class="fas fa-wind text-xl text-blue-600 mr-3 mt-1"></i><div><strong>Vida Cotidiana:</strong> Explica por qué un globo de helio (4 g/mol) se desinfla mucho más rápido que uno con aire (~29 g/mol).</div></li>
+                        <li class="flex items-start"><i class="fas fa-exclamation-triangle text-xl text-blue-600 mr-3 mt-1"></i><div><strong>Seguridad Industrial:</strong> Ayuda a predecir cómo se dispersarán las fugas de gases peligrosos (ligeros como H₂ o pesados como H₂S).</div></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="note-box w-11/12 mx-auto"><strong>Limitación:</strong> La ley es más precisa para gases en condiciones ideales (baja presión, alta temperatura) donde las interacciones entre moléculas son despreciables.</div>
+            <div class="footer">Parte IV: El Modelo Teórico</div>
+        </div>
+
+        <!-- Diapositiva 29: Aplicación: Método de Regnault (Densidad) -->
+        <div class="slide">
+            <h1 class="slide-title small">Aplicación: Método de Regnault (Densidad)</h1>
+            <div class="accent-bar"></div>
+            <div class="content-grid">
+                <div class="procedure-column">
+                    <h3 class="section-title">Objetivo y Procedimiento</h3>
+                    <p>Determinar experimentalmente la densidad de un gas mediante pesada directa en un recipiente de volumen conocido (ampolla).</p>
+                    <div class="step"><div class="step-number">1</div><div class="step-text">Pesar la ampolla vacía (tras hacer vacío): <strong>m₀</strong>.</div></div>
+                    <div class="step"><div class="step-number">2</div><div class="step-text">Llenar con el gas a P y T ambiente y pesar: <strong>m₁</strong>.</div></div>
+                    <div class="step"><div class="step-number">3</div><div class="step-text">Llenar con agua para determinar el volumen y pesar: <strong>m₂</strong>.</div></div>
+                    <div class="formula-box mt-4">
+                        <p>Masa del gas: $m_{gas} = m_1 - m_0$</p>
+                        <p>Volumen: $V = (m_2 - m_0) / \delta_{agua}$</p>
+                        <p class="font-bold">Densidad: $\delta_{gas} = m_{gas} / V$</p>
+                    </div>
+                </div>
+                <div class="apparatus-column">
+                    <img alt="Aparato de Regnault" class="apparatus-image" src="maxresdefault.jpg" />
+                    <p class="image-caption">Esquema del montaje para el método de Regnault.</p>
+                </div>
+            </div>
+            <div class="footer">Aplicaciones Experimentales</div>
+        </div>
+
+        <!-- Diapositiva 30: Aplicación: Método de Victor Meyer (Masa Molar) -->
+        <div class="slide">
+            <h1 class="slide-title small">Aplicación: Método de Victor Meyer (Masa Molar)</h1>
+            <div class="accent-bar"></div>
+            <div class="content-grid">
+                <div class="procedure-column">
+                    <h3 class="section-title">Objetivo y Fundamento</h3>
+                    <p>Determinar la masa molar (PM) de un líquido volátil. Se basa en el Principio de Avogadro: el número de moles de la muestra vaporizada es igual al número de moles de aire que desaloja.</p>
+                    <div class="step"><div class="step-number">1</div><div class="step-text">Se vaporiza una masa conocida (<strong>m</strong>) del líquido.</div></div>
+                    <div class="step"><div class="step-number">2</div><div class="step-text">El vapor desplaza un volumen de aire (<strong>V</strong>) que se mide sobre agua a P y T ambiente.</div></div>
+                    <div class="step"><div class="step-number">3</div><div class="step-text">Se calculan los moles de aire desplazado con $n = PV/RT$.</div></div>
+                     <div class="step"><div class="step-number">4</div><div class="step-text">Se calcula la masa molar: <strong>PM = m / n</strong>.</div></div>
+                </div>
+                <div class="apparatus-column">
+                     <img alt="Aparato de Victor Meyer" class="apparatus-image" src="https://page.gensparksite.com/slides_images/42a70970b9c62559d19a90458e55c90c.png" />
+                     <p class="image-caption">Esquema del montaje para el método de Victor Meyer.</p>
+                </div>
+            </div>
+            <div class="footer">Aplicaciones Experimentales</div>
+        </div>
+        
+        <!-- Diapositiva 31: Resumen Final -->
+        <div class="slide">
+            <h1 class="slide-title small">Resumen Final de la Clase</h1>
+            <div class="accent-bar"></div>
+             <div class="mind-map-container" style="height: 500px;">
+                <div class="center-node">Gas Ideal<br/>PV=nRT</div>
+                <div class="branch-node" style="left: 45%; top: 0px;"><div class="branch-node-title">Variables de Estado</div><div class="branch-node-content">P (Presión), V (Volumen), T (Temperatura), n (moles)</div></div>
+                <div class="branch-node" style="right: 0; top: 25%;"><div class="branch-node-title">Leyes Empíricas</div><div class="branch-node-content">Boyle (P-V)<br/>Charles (V-T)<br/>Gay-Lussac (P-T)<br/>Avogadro (V-n)</div></div>
+                <div class="branch-node" style="right: 10%; bottom: 0;"><div class="branch-node-title">Estequiometría</div><div class="branch-node-content">Relaciones mol-volumen en reacciones químicas.</div></div>
+                <div class="branch-node" style="left: 45%; bottom: -20px;"><div class="branch-node-title">Aplicaciones</div><div class="branch-node-content">Cálculo de Densidad y Masa Molar (Regnault, Meyer).</div></div>
+                <div class="branch-node" style="left: 10%; bottom: 0;"><div class="branch-node-title">Fenómenos</div><div class="branch-node-content">Difusión y Efusión (Ley de Graham)<br/>Mezclas (Ley de Dalton)</div></div>
+                <div class="branch-node" style="left: 0; top: 25%;"><div class="branch-node-title">Teoría Cinética</div><div class="branch-node-content">Modelo microscópico que explica el comportamiento macroscópico.</div></div>
+            </div>
+            <div class="footer">Física y Química | Curso 2025</div>
+        </div>
+
+    </div>
+
+    <!-- Controles de navegación -->
+    <div class="slide-counter" id="slide-counter"></div>
+    <div class="nav-controls">
+        <button class="nav-button" id="prev-button">Anterior</button>
+        <button class="nav-button" id="next-button">Siguiente</button>
+    </div>
+
+<script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // --- 1. GLOBAL STATE & CONSTANTS ---
+            const slides = Array.from(document.querySelectorAll('.slide'));
+            const prevButton = document.getElementById('prev-button');
+            const nextButton = document.getElementById('next-button');
+            const slideCounter = document.getElementById('slide-counter');
+            let currentSlide = 0;
+            const totalSlides = slides.length;
+            const slideScriptsExecuted = {}; 
+            
+            // --- VARIABLES GLOBALES PARA APPLETS ---
+            const R = 0.0821; 
+            const particleCountFactor = 70;
+            const animationSpeedMultiplier = 3;
+            const TEMP_MIN_COLOR = 100, TEMP_MAX_COLOR = 800, TEMP_NEUTRAL = 300;
+            let animationFrameId = null;
+            const particles = { boyle: [], charles: [], avogadro: [], dalton: [] };
+            
+            // Estado compartido para las leyes de los gases
+            let lawState = { boyle: {}, charles: {}, avogadro: {} };
+            let boyleChart, charlesChart, avogadroChart, boyleLinearChart; // Declarar gráficos globalmente
 
 
-        // --- Chart Instances ---
-        let boyleChart, charlesChart, avogadroChart;
+            // --- 2. LÓGICA DE NAVEGACIÓN (SECCIÓN AÑADIDA) ---
+            function showSlide(index) {
+                if (index >= totalSlides) index = totalSlides - 1;
+                if (index < 0) index = 0;
+                currentSlide = index;
 
-        // --- State Variables ---
-        let state = {
-            boyle: {},
-            charles: {},
-            avogadro: {}
-        };
-
-        // --- Particle Animation ---
-        let animationFrameId = null;
-        const particles = { boyle: [], charles: [], avogadro: [] };
-
-        // createParticle, updateParticles, animateParticles (Identical to v3 - omitted for brevity)
-         function createParticle(containerId) {
-            const container = document.getElementById(`${containerId}-container`);
-            if (!container) return null;
-            const particle = document.createElement('div');
-            particle.classList.add('particle');
-            const piston = document.getElementById(`${containerId}-piston`);
-            const pistonHeightPercent = parseFloat(piston.style.height) || 0;
-            const availableHeightRatio = Math.max(0, 1 - (pistonHeightPercent / 100));
-
-            particle.style.left = `${Math.random() * 98 + 1}%`;
-            particle.style.top = `${Math.random() * Math.max(0, (availableHeightRatio * 100 - 2)) + 1}%`;
-
-            particle.vx = (Math.random() - 0.5) * 0.5;
-            particle.vy = (Math.random() - 0.5) * 0.5;
-            container.appendChild(particle);
-            return particle;
-        }
-
-        function updateParticles(containerId, n, T) {
-             const container = document.getElementById(`${containerId}-container`);
-             if (!container) return;
-             const currentParticles = particles[containerId];
-             const targetParticleCount = Math.max(5, Math.round(n * particleCountFactor));
-
-            while (currentParticles.length < targetParticleCount) {
-                const newParticle = createParticle(containerId);
-                if (newParticle) currentParticles.push(newParticle);
-                else break;
-            }
-            while (currentParticles.length > targetParticleCount) {
-                const removedParticle = currentParticles.pop();
-                 if (removedParticle && removedParticle.parentNode) {
-                     removedParticle.parentNode.removeChild(removedParticle);
-                 }
-            }
-
-            const speedFactor = Math.max(0.1, Math.sqrt(T / 100));
-
-            currentParticles.forEach(p => {
-                 if (!p) return;
-                 const baseMagnitude = Math.sqrt(p.vx * p.vx + p.vy * p.vy) || 0.1;
-                 p.vx = (p.vx / baseMagnitude) * speedFactor * (Math.random() * 0.4 + 0.8);
-                 p.vy = (p.vy / baseMagnitude) * speedFactor * (Math.random() * 0.4 + 0.8);
-            });
-
-            if (!animationFrameId) {
-                animateParticles();
-            }
-        }
-
-        function animateParticles() {
-             Object.keys(particles).forEach(containerId => {
-                const container = document.getElementById(`${containerId}-container`);
-                const currentParticles = particles[containerId];
-                if (!container || !currentParticles || currentParticles.length === 0) return;
-
-                const containerWidth = container.clientWidth;
-                const containerHeight = container.clientHeight;
-                const piston = document.getElementById(`${containerId}-piston`);
-                const pistonHeightPercent = parseFloat(piston.style.height) || 0;
-                const availableHeightPx = Math.max(0, containerHeight * (1 - pistonHeightPercent / 100));
-                const particleSize = 6;
-
-                currentParticles.forEach(particle => {
-                     if (!particle) return;
-
-                    let xPercent = parseFloat(particle.style.left);
-                    let yPercent = parseFloat(particle.style.top);
-                    let vx = particle.vx;
-                    let vy = particle.vy;
-
-                    let nextXpx = (xPercent / 100) * containerWidth + vx * animationSpeedMultiplier;
-                    let nextYpx = (yPercent / 100) * containerHeight + vy * animationSpeedMultiplier;
-
-                    if (nextXpx <= 0 || nextXpx >= containerWidth - particleSize) {
-                        vx = -vx;
-                        nextXpx = Math.max(0, Math.min(containerWidth - particleSize, nextXpx));
-                        particle.vx = vx * (Math.random() * 0.1 + 0.95);
-                    }
-
-                    if (nextYpx <= 0) {
-                        vy = -vy;
-                        nextYpx = 0;
-                        particle.vy = vy * (Math.random() * 0.1 + 0.95);
-                    } else if (nextYpx >= availableHeightPx - particleSize) {
-                        vy = -vy;
-                        nextYpx = Math.max(0, availableHeightPx - particleSize);
-                        particle.vy = vy * (Math.random() * 0.1 + 0.95);
-                    }
-
-                    if (!isNaN(nextXpx) && containerWidth > 0) {
-                       particle.style.left = `${Math.max(0, Math.min(100, (nextXpx / containerWidth) * 100))}%`;
-                    }
-                     if (!isNaN(nextYpx) && containerHeight > 0) {
-                        particle.style.top = `${Math.max(0, Math.min(100, (nextYpx / containerHeight) * 100))}%`;
-                    }
-                    particle.vx = vx;
-                    particle.vy = vy;
+                slides.forEach((slide, i) => {
+                    slide.classList.toggle('active', i === index);
                 });
-            });
 
-            animationFrameId = requestAnimationFrame(animateParticles);
-        }
-
-
-        // --- Temperature to Color Mapping ---
-        // getTemperatureColor (Identical to v3 - omitted for brevity)
-         function getTemperatureColor(tempK) {
-            const temp = Math.max(TEMP_MIN_COLOR, Math.min(TEMP_MAX_COLOR, tempK));
-            let hue, saturation, lightness;
-
-            saturation = 70;
-            lightness = 75;
-
-             if (temp <= TEMP_NEUTRAL) {
-                const factor = (temp - TEMP_MIN_COLOR) / (TEMP_NEUTRAL - TEMP_MIN_COLOR);
-                hue = 240 - (60 * factor);
-                saturation = 70 - (40 * factor);
-                lightness = 65 + (25 * factor);
-            } else {
-                const factor = (temp - TEMP_NEUTRAL) / (TEMP_MAX_COLOR - TEMP_NEUTRAL);
-                hue = 60 - (60 * factor);
-                saturation = 30 + (40 * factor);
-                lightness = 90 - (25 * factor);
-            }
-
-            hue = Math.max(0, Math.min(360, hue));
-            saturation = Math.max(0, Math.min(100, saturation));
-            lightness = Math.max(0, Math.min(100, lightness));
-
-            return `hsl(${hue.toFixed(0)}, ${saturation.toFixed(0)}%, ${lightness.toFixed(0)}%)`;
-        }
-
-        // --- Charting Functions ---
-        // createChart, updateChart (Identical to v3 - omitted for brevity)
-         function createChart(ctx, type, xLabel, yLabel) {
-             return new Chart(ctx, {
-                type: 'scatter',
-                data: {
-                    datasets: [
-                        {
-                            label: 'Relación Calculada',
-                            data: [],
-                            borderColor: 'rgb(59, 130, 246)',
-                            borderWidth: 2,
-                            tension: 0.1,
-                            showLine: true,
-                            pointRadius: 0,
-                            type: 'line'
-                        },
-                        {
-                            label: 'Estado Actual',
-                            data: [],
-                            backgroundColor: 'rgb(239, 68, 68)',
-                            pointRadius: 6,
-                            pointHoverRadius: 8
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: {
-                            type: 'linear',
-                            position: 'bottom',
-                            title: { display: true, text: xLabel }
-                        },
-                        y: {
-                            title: { display: true, text: yLabel }
-                        }
-                    },
-                     animation: {
-                        duration: 0
-                    },
-                    plugins: {
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.dataset.label || '';
-                                    if (label) { label += ': '; }
-                                    if (context.parsed.y !== null && context.parsed.x !== null) {
-                                        label += `(${context.parsed.x.toFixed(2)}, ${context.parsed.y.toFixed(2)})`;
-                                    }
-                                    return label;
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        function updateChart(chart, curveData, currentPoint) {
-            if (!chart) return;
-            chart.data.datasets[0].data = curveData;
-            chart.data.datasets[1].data = [currentPoint];
-            chart.update('none');
-        }
-
-
-        // --- Update Functions (Combined Logic) ---
-
-        function updateBoyle(source = 'slider') {
-            // State variables needed: p, v, t, n
-            let { p, v, t, n } = state.boyle;
-            // Slider limits
-            const vMin = parseFloat(boyleVolumeSlider.min);
-            const vMax = parseFloat(boyleVolumeSlider.max);
-            // Define a reasonable pressure range for display and chart scaling, can be dynamic if needed
-            const pDisplayMin = 0.1;
-            const pDisplayMax = 20; // Adjust as needed, maybe based on initial constants
-
-            // Read constants first if they changed
-            if (source === 'input_t' || source === 'input_n') {
-                 t = parseFloat(boyleTempInput.value) || state.boyle.t;
-                 n = parseFloat(boyleMolesInput.value) || state.boyle.n;
-                 t = Math.max(1, t);
-                 n = Math.max(0.01, n);
-                 boyleTempInput.value = t;
-                 boyleMolesInput.value = n;
-                 // Keep V from slider
-                 v = parseFloat(boyleVolumeSlider.value);
-            } else if (source === 'slider_v') {
-                 v = parseFloat(boyleVolumeSlider.value);
-                 // Keep constants from state
-                 t = state.boyle.t;
-                 n = state.boyle.n;
-            } else { // Init
-                v = parseFloat(boyleVolumeSlider.value);
-                t = parseFloat(boyleTempInput.value);
-                n = parseFloat(boyleMolesInput.value);
-            }
-
-             // Always calculate P based on V, T, n
-             v = Math.max(vMin, Math.min(vMax, v)); // Clamp V from slider
-             if (v > 0) { // Avoid division by zero
-                p = (n * R * t) / v;
-             } else {
-                p = Infinity; // Or handle as error
-             }
-
-             // Update state
-             state.boyle = { p, v, t, n };
-
-            // Update UI displays
-            boyleVolumeValue.textContent = `${v.toFixed(1)} L`;
-            // Display calculated pressure, handle extreme values
-            if (p === Infinity) {
-                 boylePressureCalculatedValue.textContent = `> ${pDisplayMax.toFixed(1)} atm`;
-            } else {
-                 boylePressureCalculatedValue.textContent = `${p.toFixed(1)} atm`;
-            }
-            boyleConstantDisplay.textContent = (p !== Infinity) ? (p * v).toFixed(2) : 'N/A';
-
-            // Update Piston visualization
-            const normalizedVolume = (v - vMin) / (vMax - vMin);
-            const pistonHeightPercentage = (1 - normalizedVolume) * 100;
-            boylePiston.style.height = `${Math.max(5, Math.min(95, pistonHeightPercentage))}%`;
-
-            // Update Container Color
-            boyleContainer.style.backgroundColor = getTemperatureColor(t);
-
-            // Update Particles
-            updateParticles('boyle', n, t);
-
-            // Update Chart
-            const curveData = [];
-            const numPoints = 50;
-            for (let i = 0; i <= numPoints; i++) {
-                const vol = vMin + (i / numPoints) * (vMax - vMin);
-                if (vol > 0) {
-                    const pres = (n * R * t) / vol;
-                    // Only include points within a reasonable display range for the chart
-                    if (pres >= 0 && pres <= pDisplayMax * 1.5) {
-                       curveData.push({ x: vol, y: pres });
-                    } else if (pres > pDisplayMax * 1.5 && curveData[curveData.length-1]?.y <= pDisplayMax * 1.5) {
-                         // Add one point just above max to show trend, if previous was in range
-                         curveData.push({ x: vol, y: pDisplayMax * 1.5 });
-                    }
+                slideCounter.textContent = `${index + 1} / ${totalSlides}`;
+                prevButton.disabled = index === 0;
+                nextButton.disabled = index === totalSlides - 1;
+                
+                const activeSlideId = slides[index].id;
+                if (activeSlideId) {
+                    executeSlideSpecificScript(activeSlideId);
                 }
             }
-             // Ensure the current point is always added, even if outside typical curve range
-            const currentPoint = { x: v, y: Math.min(p, pDisplayMax * 1.5) }; // Cap y for display
-            updateChart(boyleChart, curveData.sort((a,b) => a.x - b.x), currentPoint);
-        }
 
+            nextButton.addEventListener('click', () => {
+                showSlide(currentSlide + 1);
+            });
 
-        // updateCharles, updateAvogadro (Identical to v3 - omitted for brevity)
-         function updateCharles(source = 'slider') {
-            let { t, v, p, n } = state.charles;
-            const tMin = parseFloat(charlesTempSlider.min);
-            const tMax = parseFloat(charlesTempSlider.max);
-
-            if (source === 'input_p' || source === 'input_n') {
-                 p = parseFloat(charlesPressureInput.value) || state.charles.p;
-                 n = parseFloat(charlesMolesInput.value) || state.charles.n;
-                 p = Math.max(0.01, p);
-                 n = Math.max(0.01, n);
-                 charlesPressureInput.value = p;
-                 charlesMolesInput.value = n;
-                 t = parseFloat(charlesTempSlider.value);
-             } else if (source === 'slider') {
-                 t = parseFloat(charlesTempSlider.value);
-                 p = state.charles.p;
-                 n = state.charles.n;
-             } else { // Init
-                 t = parseFloat(charlesTempSlider.value);
-                 p = parseFloat(charlesPressureInput.value);
-                 n = parseFloat(charlesMolesInput.value);
-             }
-
-             t = Math.max(tMin, Math.min(tMax, t));
-             v = (n * R * t) / p;
-
-             state.charles = { t, v, p, n };
-
-            charlesTempValue.textContent = `${t.toFixed(0)} K`;
-            charlesVolumeValue.textContent = `${v.toFixed(1)} L`;
-            charlesConstantDisplay.textContent = v > 0 && t > 0 ? (v / t).toFixed(4) : 'N/A';
-
-            const minVisualV = (n * R * tMin) / p;
-            const maxVisualV = (n * R * tMax) / p;
-            let normalizedVolume = 0.5;
-            if (maxVisualV > minVisualV && maxVisualV > 0) {
-               normalizedVolume = Math.max(0, Math.min(1, (v - minVisualV) / (maxVisualV - minVisualV)));
+            prevButton.addEventListener('click', () => {
+                showSlide(currentSlide - 1);
+            });
+            
+            // --- 3. SHARED HELPER FUNCTIONS (Sin cambios) ---
+            function getTemperatureColor(tempK) { const temp = Math.max(TEMP_MIN_COLOR, Math.min(TEMP_MAX_COLOR, tempK)); let hue, sat, light; sat = 70; light = 75; if (temp <= TEMP_NEUTRAL) { const factor = (temp - TEMP_MIN_COLOR) / (TEMP_NEUTRAL - TEMP_MIN_COLOR); hue = 240 - (60 * factor); sat = 70 - (40 * factor); light = 65 + (25 * factor); } else { const factor = (temp - TEMP_NEUTRAL) / (TEMP_MAX_COLOR - TEMP_NEUTRAL); hue = 60 - (60 * factor); sat = 30 + (40 * factor); light = 90 - (25 * factor); } hue = Math.max(0, Math.min(360, hue)); sat = Math.max(0, Math.min(100, sat)); light = Math.max(0, Math.min(100, light)); return `hsl(${hue.toFixed(0)}, ${sat.toFixed(0)}%, ${light.toFixed(0)}%)`; }
+            function createParticle(id, gasType = '') { const cont = document.getElementById(`${id}-container`); if (!cont) return null; const p = document.createElement('div'); p.classList.add('particle'); if(gasType) p.classList.add(gasType); const piston = document.getElementById(`${id}-piston`); const pistonH = piston ? (parseFloat(piston.style.height) || 0) : 0; const availH = Math.max(0, 1 - (pistonH / 100)); p.style.left = `${Math.random() * 98 + 1}%`; p.style.top = `${Math.random() * Math.max(0, (availH * 100 - 2)) + 1}%`; p.vx = (Math.random() - .5) * .5; p.vy = (Math.random() - .5) * .5; cont.appendChild(p); return p; }
+            function updateParticles(id, n, T, nB = 0) { const cont = document.getElementById(`${id}-container`); if (!cont) return; const currentPs = particles[id]; let targetCountA = id === 'dalton' ? Math.max(0, Math.round(n * particleCountFactor)) : Math.max(5, Math.round(n * particleCountFactor)); let targetCountB = id === 'dalton' ? Math.max(0, Math.round(nB * particleCountFactor)) : 0; const targetTotal = targetCountA + targetCountB; while (currentPs.length < targetTotal) { const isGasB = id === 'dalton' && currentPs.filter(p=>p.classList.contains('gas-b')).length < targetCountB; const newP = createParticle(id, isGasB ? 'gas-b' : 'gas-a'); if (newP) currentPs.push(newP); else break; } while (currentPs.length > targetTotal) { const removedP = currentPs.pop(); if (removedP && removedP.parentNode) removedP.parentNode.removeChild(removedP); } const speedFactor = Math.max(.1, Math.sqrt(T / 100)); currentPs.forEach(p => { if (!p) return; const mag = Math.sqrt(p.vx * p.vx + p.vy * p.vy) || .1; p.vx = (p.vx / mag) * speedFactor * (Math.random() * .4 + .8); p.vy = (p.vy / mag) * speedFactor * (Math.random() * .4 + .8); }); if (!animationFrameId) animateParticles(); }
+            function animateParticles() { Object.keys(particles).forEach(id => { const cont = document.getElementById(`${id}-container`); const currentPs = particles[id]; if (!cont || !currentPs || currentPs.length === 0) return; const contW = cont.clientWidth, contH = cont.clientHeight; const piston = document.getElementById(`${id}-piston`); const pistonH = piston ? (parseFloat(piston.style.height) || 0) : 0; const availH = Math.max(0, contH * (1 - pistonH / 100)); const pSize = 6; currentPs.forEach(p => { if (!p) return; let x = parseFloat(p.style.left), y = parseFloat(p.style.top), vx = p.vx, vy = p.vy; let nextXpx = (x / 100) * contW + vx * animationSpeedMultiplier, nextYpx = (y / 100) * contH + vy * animationSpeedMultiplier; if (nextXpx <= 0 || nextXpx >= contW - pSize) { vx = -vx; nextXpx = Math.max(0, Math.min(contW - pSize, nextXpx)); p.vx = vx * (Math.random() * .1 + .95); } let topBoundary = 0; let bottomBoundary = piston ? availH - pSize : contH - pSize; if (nextYpx <= topBoundary) { vy = -vy; nextYpx = topBoundary; p.vy = vy * (Math.random() * .1 + .95); } else if (nextYpx >= bottomBoundary) { vy = -vy; nextYpx = Math.max(0, bottomBoundary); p.vy = vy * (Math.random() * .1 + .95); } if (!isNaN(nextXpx) && contW > 0) p.style.left = `${Math.max(0, Math.min(100, (nextXpx / contW) * 100))}%`; if (!isNaN(nextYpx) && contH > 0) p.style.top = `${Math.max(0, Math.min(100, (nextYpx / contH) * 100))}%`; p.vx = vx; p.vy = vy; }); }); animationFrameId = requestAnimationFrame(animateParticles); }
+            function addDebouncedListener(el, event, cb, delay = 50) { let timeout; el.addEventListener(event, e => { clearTimeout(timeout); timeout = setTimeout(() => { if (el.type === 'number' && !el.checkValidity()) { el.value = Math.max(parseFloat(el.min) || 0, Math.min(parseFloat(el.max) || Infinity, parseFloat(el.value))) || el.defaultValue; } cb(e); }, delay); }); }
+            
+            // --- 4. APPLET-SPECIFIC SETUP FUNCTIONS ---
+            
+            // --- 4a. Applet de Graham (Difusión/Efusión) ---
+            function setupGrahamApplet(slideElement) {
+                 const GASES_S6 = { 'Helio': { color: '#add8e6', mass: 4, name: 'Helio (4 g/mol)' }, 'Neon': { color: '#ffb6c1', mass: 20, name: 'Neón (20 g/mol)' }, 'Nitrogeno': { color: '#90ee90', mass: 28, name: 'Nitrógeno (28 g/mol)' }, 'Oxigeno': { color: '#f08080', mass: 32, name: 'Oxígeno (32 g/mol)' }, 'Argon': { color: '#dda0dd', mass: 40, name: 'Argón (40 g/mol)' }, 'DioxidoCarbono': { color: '#ffebcd', mass: 44, name: 'CO₂ (44 g/mol)' }, 'Kripton': { color: '#b0c4de', mass: 84, name: 'Kriptón (84 g/mol)' }, 'HexafluoruroAzufre': { color: '#a9a9a9', mass: 146, name: 'SF₆ (146 g/mol)'}};
+                const GAS_KEYS_S6 = Object.keys(GASES_S6); const PARTICLE_RADIUS_S6 = 3.5; const BASE_PARTICLE_SPEED_S6 = 1.8; const NUM_PARTICLES_DIFFUSION_S6 = 30; const NUM_PARTICLES_EFFUSION_S6 = 60;
+                class Particle_S6 { constructor(x, y, gasKey, canvasContext) { const gasProps = GASES_S6[gasKey]; this.x = x; this.y = y; this.radius = PARTICLE_RADIUS_S6; this.color = gasProps.color; this.mass = gasProps.mass; this.canvas = canvasContext.canvas; this.ctx = canvasContext; const speedFactor = Math.sqrt(GASES_S6['Helio'].mass / this.mass); const angle = Math.random() * 2 * Math.PI; const currentSpeed = BASE_PARTICLE_SPEED_S6 * speedFactor * (Math.random() * 0.4 + 0.8); this.vx = Math.cos(angle) * currentSpeed; this.vy = Math.sin(angle) * currentSpeed; this.isActive = true; } draw() { if (!this.isActive || !this.ctx) return; this.ctx.beginPath(); this.ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2); this.ctx.fillStyle = this.color; this.ctx.fill(); this.ctx.closePath(); } updateDiffusion(barrierX) { if (!this.isActive || !this.canvas) return; this.x += this.vx; this.y += this.vy; if (this.x + this.radius > this.canvas.width || this.x - this.radius < 0) { this.vx *= -1; this.x = Math.max(this.radius, Math.min(this.x, this.canvas.width - this.radius)); } if (this.y + this.radius > this.canvas.height || this.y - this.radius < 0) { this.vy *= -1; this.y = Math.max(this.radius, Math.min(this.y, this.canvas.height - this.radius)); } if (barrierX !== null) { const b = 2; if (this.vx > 0 && this.x + this.radius > barrierX - b / 2 && this.x - this.radius < barrierX + b / 2) { this.vx *= -1; this.x = barrierX - b / 2 - this.radius; } else if (this.vx < 0 && this.x - this.radius < barrierX + b / 2 && this.x + this.radius > barrierX - b / 2) { this.vx *= -1; this.x = barrierX + b / 2 + this.radius; } } } updateEffusion(dividerX, holeY, holeHeight, canvasWidth) { if (!this.isActive || !this.canvas) return; this.x += this.vx; this.y += this.vy; if (this.y - this.radius < 0 || this.y + this.radius > this.canvas.height) { this.vy *= -1; this.y = Math.max(this.radius, Math.min(this.y, this.canvas.height - this.radius)); } if (this.x - this.radius < 0) { this.vx *= -1; this.x = this.radius; } if (this.vx > 0 && this.x + this.radius > dividerX && this.x - this.radius < dividerX + 2) { if (!(this.y > holeY && this.y < holeY + holeHeight)) { this.vx *= -1; this.x = dividerX - this.radius; } } if (this.x - this.radius > canvasWidth) { this.isActive = false; } } }
+                const diffusionCanvas = slideElement.querySelector('#diffusionCanvas_s6'), diffusionCtx = diffusionCanvas?.getContext('2d'), startDiffusionBtn = slideElement.querySelector('#startDiffusion_s6'), diffusionExplanation = slideElement.querySelector('#diffusionExplanation_s6'), selectGasA = slideElement.querySelector('#selectGasA_s6'), selectGasB = slideElement.querySelector('#selectGasB_s6'), gasADot = slideElement.querySelector('#gasADot_s6'), gasAName = slideElement.querySelector('#gasAName_s6'), gasBDot = slideElement.querySelector('#gasBDot_s6'), gasBName = slideElement.querySelector('#gasBName_s6'); let diffusionParticles = [], diffusionAnimationId = null, diffusionBarrierX = diffusionCanvas?.width / 2, diffusionSimRunning = false, barrierPresent = true;
+                const effusionCanvas = slideElement.querySelector('#effusionCanvas_s6'), effusionCtx = effusionCanvas?.getContext('2d'), startEffusionBtn = slideElement.querySelector('#startEffusion_s6'), effusionExplanation = slideElement.querySelector('#effusionExplanation_s6'), effusionParticleCount = slideElement.querySelector('#effusionParticleCount_s6'), selectGasEffusion = slideElement.querySelector('#selectGasEffusion_s6'), gasEffusionDot = slideElement.querySelector('#gasEffusionDot_s6'), gasEffusionName = slideElement.querySelector('#gasEffusionName_s6'); let effusionParticles = [], effusionAnimationId = null; const EFFUSION_DIVIDER_X_RATIO = 2/3, EFFUSION_HOLE_HEIGHT = 30; let effDividerX, effHoleY, effusionSimRunning = false;
+                function populateSelectors() { if (!selectGasA || !selectGasB || !selectGasEffusion) return; selectGasA.innerHTML = ''; selectGasB.innerHTML = ''; selectGasEffusion.innerHTML = ''; GAS_KEYS_S6.forEach(key => { selectGasA.add(new Option(GASES_S6[key].name.split(' (')[0], key)); selectGasB.add(new Option(GASES_S6[key].name.split(' (')[0], key)); selectGasEffusion.add(new Option(GASES_S6[key].name.split(' (')[0], key)); }); selectGasA.value = GAS_KEYS_S6[0]; selectGasB.value = GAS_KEYS_S6[GAS_KEYS_S6.length - 1]; selectGasEffusion.value = GAS_KEYS_S6[0]; updateDiffusionLegend(); updateEffusionLegend(); }
+                function updateDiffusionLegend() { if (!selectGasA || !gasADot || !gasAName || !gasBDot || !gasBName) return; const a = selectGasA.value, b = selectGasB.value; gasADot.style.backgroundColor = GASES_S6[a].color; gasAName.textContent = GASES_S6[a].name.split(' (')[0]; gasBDot.style.backgroundColor = GASES_S6[b].color; gasBName.textContent = GASES_S6[b].name.split(' (')[0]; }
+                function initDiffusion() { if (!diffusionCanvas || !diffusionCtx) return; if (diffusionAnimationId) cancelAnimationFrame(diffusionAnimationId); diffusionAnimationId = null; diffusionParticles = []; diffusionSimRunning = false; barrierPresent = true; diffusionBarrierX = diffusionCanvas.width / 2; if(diffusionExplanation) diffusionExplanation.textContent = "Pulsa 'Iniciar Difusión'."; updateDiffusionLegend(); const a = selectGasA.value, b = selectGasB.value; for (let i = 0; i < NUM_PARTICLES_DIFFUSION_S6; i++) { const xA = PARTICLE_RADIUS_S6 + Math.random()*(diffusionBarrierX-PARTICLE_RADIUS_S6*2-4), yA = PARTICLE_RADIUS_S6+Math.random()*(diffusionCanvas.height-PARTICLE_RADIUS_S6*2); diffusionParticles.push(new Particle_S6(xA,yA,a,diffusionCtx)); const xB = diffusionBarrierX+4+PARTICLE_RADIUS_S6+Math.random()*(diffusionCanvas.width-(diffusionBarrierX+4)-PARTICLE_RADIUS_S6*2), yB=PARTICLE_RADIUS_S6+Math.random()*(diffusionCanvas.height-PARTICLE_RADIUS_S6*2); diffusionParticles.push(new Particle_S6(xB,yB,b,diffusionCtx)); } drawDiffusion(); if(startDiffusionBtn) startDiffusionBtn.innerHTML = '<i class="fas fa-play mr-1"></i>Iniciar Difusión'; }
+                function drawDiffusionBarrier() { if(barrierPresent && diffusionCtx && diffusionCanvas){diffusionCtx.beginPath(); diffusionCtx.moveTo(diffusionBarrierX,0); diffusionCtx.lineTo(diffusionBarrierX,diffusionCanvas.height); diffusionCtx.strokeStyle='#4b5563'; diffusionCtx.lineWidth=2; diffusionCtx.stroke();} }
+                function drawDiffusion() { if (!diffusionCtx || !diffusionCanvas) return; diffusionCtx.clearRect(0,0,diffusionCanvas.width,diffusionCanvas.height); drawDiffusionBarrier(); diffusionParticles.forEach(p=>p.draw()); }
+                function animateDiffusion() { if(!diffusionSimRunning || !diffusionCtx || !diffusionCanvas){if(diffusionAnimationId) cancelAnimationFrame(diffusionAnimationId); diffusionAnimationId = null; return;} diffusionCtx.clearRect(0,0,diffusionCanvas.width,diffusionCanvas.height); const currentBarrierX = barrierPresent ? diffusionBarrierX : null; diffusionParticles.forEach(p=>{p.updateDiffusion(currentBarrierX); p.draw();}); drawDiffusionBarrier(); diffusionAnimationId = requestAnimationFrame(animateDiffusion); }
+                function updateEffusionLayoutParams() { if (!effusionCanvas) return; effDividerX = effusionCanvas.width * EFFUSION_DIVIDER_X_RATIO; effHoleY = (effusionCanvas.height-EFFUSION_HOLE_HEIGHT)/2; }
+                function updateEffusionLegend() { if(!selectGasEffusion || !gasEffusionDot || !gasEffusionName) return; const gasKey = selectGasEffusion.value; gasEffusionDot.style.backgroundColor = GASES_S6[gasKey].color; gasEffusionName.textContent = GASES_S6[gasKey].name.split(' (')[0]; }
+                function initEffusion() { if (!effusionCanvas || !effusionCtx) return; if (effusionAnimationId) cancelAnimationFrame(effusionAnimationId); effusionAnimationId = null; effusionParticles = []; effusionSimRunning = false; updateEffusionLayoutParams(); updateEffusionLegend(); if(effusionExplanation) effusionExplanation.textContent = "Pulsa 'Iniciar Efusión'."; const gasKey = selectGasEffusion.value; for (let i=0; i < NUM_PARTICLES_EFFUSION_S6; i++){ const x=PARTICLE_RADIUS_S6+Math.random()*(effDividerX-PARTICLE_RADIUS_S6*2-2), y=PARTICLE_RADIUS_S6+Math.random()*(effusionCanvas.height-PARTICLE_RADIUS_S6*2); effusionParticles.push(new Particle_S6(x,y,gasKey,effusionCtx));} updateEffusionParticleCount(); drawEffusion(); if(startEffusionBtn) startEffusionBtn.innerHTML = '<i class="fas fa-play mr-1"></i>Iniciar Efusión';}
+                function drawEffusionDividerAndHole() { if (!effusionCtx || !effusionCanvas) return; effusionCtx.beginPath(); effusionCtx.moveTo(effDividerX,0); effusionCtx.lineTo(effDividerX,effHoleY); effusionCtx.moveTo(effDividerX, effHoleY+EFFUSION_HOLE_HEIGHT); effusionCtx.lineTo(effDividerX,effusionCanvas.height); effusionCtx.strokeStyle='#4b5563'; effusionCtx.lineWidth=2; effusionCtx.stroke(); }
+                function drawEffusion() { if (!effusionCtx || !effusionCanvas) return; effusionCtx.clearRect(0,0,effusionCanvas.width,effusionCanvas.height); drawEffusionDividerAndHole(); effusionParticles.forEach(p=>p.draw()); }
+                function updateEffusionParticleCount() { if(!effusionParticleCount) return; const active=effusionParticles.filter(p=>p.isActive).length; effusionParticleCount.textContent=`Partículas: ${active}`; if (active===0 && effusionSimRunning && effusionParticles.length>0) { if(effusionExplanation) effusionExplanation.textContent="¡Todas las partículas han escapado!"; if(effusionAnimationId) cancelAnimationFrame(effusionAnimationId); effusionAnimationId=null; effusionSimRunning=false; if(startEffusionBtn) startEffusionBtn.innerHTML='<i class="fas fa-redo mr-1"></i>Reiniciar';}}
+                function animateEffusion() { if (!effusionSimRunning || !effusionCtx || !effusionCanvas) {if(effusionAnimationId) cancelAnimationFrame(effusionAnimationId); effusionAnimationId = null; return;} effusionCtx.clearRect(0,0,effusionCanvas.width,effusionCanvas.height); effusionParticles.forEach(p=>{if(p.isActive){p.updateEffusion(effDividerX, effHoleY, EFFUSION_HOLE_HEIGHT, effusionCanvas.width); p.draw();}}); drawEffusionDividerAndHole(); updateEffusionParticleCount(); const activeCount=effusionParticles.filter(p=>p.isActive).length; if(activeCount > 0){effusionAnimationId = requestAnimationFrame(animateEffusion);} else {if(effusionAnimationId) cancelAnimationFrame(effusionAnimationId); effusionAnimationId = null; effusionSimRunning = false;}}
+                startDiffusionBtn?.addEventListener('click', function() { if(!diffusionSimRunning && (!diffusionParticles || diffusionParticles.length===0 || diffusionParticles.every(p=>!p.isActive))) initDiffusion(); if (diffusionSimRunning) initDiffusion(); else { diffusionSimRunning=true; barrierPresent=true; if(diffusionExplanation) diffusionExplanation.textContent="Observa... la barrera se quitará."; animateDiffusion(); this.innerHTML='<i class="fas fa-redo mr-1"></i>Reiniciar'; setTimeout(()=>{if(diffusionSimRunning){barrierPresent=false; if(diffusionExplanation) diffusionExplanation.textContent="¡Barrera eliminada! Observa la difusión.";}}, 3000);}});
+                startEffusionBtn?.addEventListener('click', function() { const active=effusionParticles.filter(p=>p.isActive).length; if(!effusionSimRunning && active===0) initEffusion(); if(effusionSimRunning && active===0) initEffusion(); else if(effusionSimRunning) initEffusion(); else {effusionSimRunning=true; if(effusionExplanation) effusionExplanation.textContent="Observa cómo escapan..."; animateEffusion(); this.innerHTML='<i class="fas fa-redo mr-1"></i>Reiniciar';}});
+                selectGasA?.addEventListener('change', ()=>{initDiffusion(); updateDiffusionLegend();}); selectGasB?.addEventListener('change', ()=>{initDiffusion(); updateDiffusionLegend();}); selectGasEffusion?.addEventListener('change', ()=>{initEffusion(); updateEffusionLegend();});
+                populateSelectors(); if (diffusionCanvas) initDiffusion(); if (effusionCanvas) initEffusion();
             }
-            const pistonHeightPercentage = (1 - normalizedVolume) * 100;
-            charlesPiston.style.height = `${Math.max(5, Math.min(95, pistonHeightPercentage))}%`;
 
-            charlesContainer.style.backgroundColor = getTemperatureColor(t);
-            updateParticles('charles', n, t);
+            // --- 4b. Applets de Leyes (Boyle, Charles, Avogadro) ---
+            function setupLawApplets() {
+                const boyleVolumeSlider = document.getElementById('boyle-volume'), boyleVolumeValue = document.getElementById('boyle-volume-value'), boylePressureCalculatedValue = document.getElementById('boyle-pressure-calculated-value'), boyleTempInput = document.getElementById('boyle-temp'), boyleMolesInput = document.getElementById('boyle-moles'), boyleConstantDisplay = document.getElementById('boyle-constant'), boyleContainer = document.getElementById('boyle-container'), boylePiston = document.getElementById('boyle-piston'), boyleChartCtx = document.getElementById('boyle-chart').getContext('2d');
+                const charlesTempSlider = document.getElementById('charles-temp'), charlesTempValue = document.getElementById('charles-temp-value'), charlesVolumeValue = document.getElementById('charles-volume-value'), charlesPressureInput = document.getElementById('charles-pressure'), charlesMolesInput = document.getElementById('charles-moles'), charlesConstantDisplay = document.getElementById('charles-constant'), charlesContainer = document.getElementById('charles-container'), charlesPiston = document.getElementById('charles-piston'), charlesChartCtx = document.getElementById('charles-chart').getContext('2d');
+                const avogadroMolesSlider = document.getElementById('avogadro-moles-slider'), avogadroMolesValue = document.getElementById('avogadro-moles-value'), avogadroVolumeValue = document.getElementById('avogadro-volume-value'), avogadroPressureInput = document.getElementById('avogadro-pressure'), avogadroTempInput = document.getElementById('avogadro-temp'), avogadroConstantDisplay = document.getElementById('avogadro-constant'), avogadroContainer = document.getElementById('avogadro-container'), avogadroPiston = document.getElementById('avogadro-piston'), avogadroChartCtx = document.getElementById('avogadro-chart').getContext('2d');
+                
+                function createChart(ctx, type, xL, yL) { return new Chart(ctx, { type: 'scatter', data: { datasets: [{ label: 'Relación', data: [], borderColor: 'rgb(59, 130, 246)', borderWidth: 2, tension: .1, showLine: !0, pointRadius: 0, type: 'line' }, { label: 'Actual', data: [], backgroundColor: 'rgb(239, 68, 68)', pointRadius: 6, pointHoverRadius: 8 }] }, options: { responsive: !0, maintainAspectRatio: !1, scales: { x: { type: 'linear', position: 'bottom', title: { display: !0, text: xL } }, y: { title: { display: !0, text: yL } } }, animation: { duration: 0 }, plugins: { tooltip: { callbacks: { label: function (ctx) { let label = ctx.dataset.label || ''; if (label) label += ': '; if (ctx.parsed.y !== null && ctx.parsed.x !== null) label += `(${ctx.parsed.x.toFixed(2)}, ${ctx.parsed.y.toFixed(2)})`; return label; } } } } } }); }
+                function updateChart(chart, data, point) { if (!chart) return; chart.data.datasets[0].data = data; chart.data.datasets[1].data = [point]; chart.update('none'); }
+                
+                function updateBoyle(src = 'slider') { let { p, v, t, n } = lawState.boyle; const vMin = parseFloat(boyleVolumeSlider.min), vMax = parseFloat(boyleVolumeSlider.max); const pMax = 20; if (src === 'input_t' || src === 'input_n') { t = parseFloat(boyleTempInput.value) || lawState.boyle.t; n = parseFloat(boyleMolesInput.value) || lawState.boyle.n; t = Math.max(1, t); n = Math.max(.01, n); boyleTempInput.value = t; boyleMolesInput.value = n; v = parseFloat(boyleVolumeSlider.value); } else if (src === 'slider_v') { v = parseFloat(boyleVolumeSlider.value); t = lawState.boyle.t; n = lawState.boyle.n; } else { v = parseFloat(boyleVolumeSlider.value); t = parseFloat(boyleTempInput.value); n = parseFloat(boyleMolesInput.value); } v = Math.max(vMin, Math.min(vMax, v)); if (v > 0) p = (n * R * t) / v; else p = Infinity; lawState.boyle = { p, v, t, n }; boyleVolumeValue.textContent = `${v.toFixed(1)} L`; if (p === Infinity) boylePressureCalculatedValue.textContent = `> ${pMax.toFixed(1)} atm`; else boylePressureCalculatedValue.textContent = `${p.toFixed(1)} atm`; boyleConstantDisplay.textContent = (p !== Infinity) ? (p * v).toFixed(2) : 'N/A'; const normV = (v - vMin) / (vMax - vMin); const pistonH = (1 - normV) * 100; boylePiston.style.height = `${Math.max(5, Math.min(95, pistonH))}%`; boyleContainer.style.backgroundColor = getTemperatureColor(t); updateParticles('boyle', n, t); const curveData = []; for (let i = 0; i <= 50; i++) { const vol = vMin + (i / 50) * (vMax - vMin); if (vol > 0) { const pres = (n * R * t) / vol; if (pres >= 0 && pres <= pMax * 1.5) curveData.push({ x: vol, y: pres }); else if (pres > pMax * 1.5 && curveData.length > 0 && curveData[curveData.length - 1].y <= pMax * 1.5) curveData.push({ x: vol, y: pMax * 1.5 }); } } const currentPoint = { x: v, y: Math.min(p, pMax * 1.5) }; updateChart(boyleChart, curveData.sort((a, b) => a.x - b.x), currentPoint); updateBoyleLinearChart(); } // <-- Llamada a la nueva función
+                function updateCharles(src = 'slider') { let { t, v, p, n } = lawState.charles; const tMin = parseFloat(charlesTempSlider.min), tMax = parseFloat(charlesTempSlider.max); if (src === 'input_p' || src === 'input_n') { p = parseFloat(charlesPressureInput.value) || lawState.charles.p; n = parseFloat(charlesMolesInput.value) || lawState.charles.n; p = Math.max(.01, p); n = Math.max(.01, n); charlesPressureInput.value = p; charlesMolesInput.value = n; t = parseFloat(charlesTempSlider.value); } else if (src === 'slider') { t = parseFloat(charlesTempSlider.value); p = lawState.charles.p; n = lawState.charles.n; } else { t = parseFloat(charlesTempSlider.value); p = parseFloat(charlesPressureInput.value); n = parseFloat(charlesMolesInput.value); } t = Math.max(tMin, Math.min(tMax, t)); v = (n * R * t) / p; lawState.charles = { t, v, p, n }; charlesTempValue.textContent = `${t.toFixed(0)} K`; charlesVolumeValue.textContent = `${v.toFixed(1)} L`; charlesConstantDisplay.textContent = v > 0 && t > 0 ? (v / t).toFixed(4) : 'N/A'; const minV = (n * R * tMin) / p, maxV = (n * R * tMax) / p; let normV = .5; if (maxV > minV && maxV > 0) normV = Math.max(0, Math.min(1, (v - minV) / (maxV - minV))); const pistonH = (1 - normV) * 100; charlesPiston.style.height = `${Math.max(5, Math.min(95, pistonH))}%`; charlesContainer.style.backgroundColor = getTemperatureColor(t); updateParticles('charles', n, t); const curveData = []; for (let i = 0; i <= 50; i++) { const temp = tMin + (i / 50) * (tMax - tMin); if (temp > 0) { const vol = (n * R * temp) / p; if (vol >= 0) curveData.push({ x: temp, y: vol }); } } updateChart(charlesChart, curveData, { x: t, y: v }); }
+                function updateAvogadro(src = 'slider') { let { n, v, p, t } = lawState.avogadro; const nMin = parseFloat(avogadroMolesSlider.min), nMax = parseFloat(avogadroMolesSlider.max); if (src === 'input_p' || src === 'input_t') { p = parseFloat(avogadroPressureInput.value) || lawState.avogadro.p; t = parseFloat(avogadroTempInput.value) || lawState.avogadro.t; p = Math.max(.01, p); t = Math.max(1, t); avogadroPressureInput.value = p; avogadroTempInput.value = t; n = parseFloat(avogadroMolesSlider.value); } else if (src === 'slider') { n = parseFloat(avogadroMolesSlider.value); p = lawState.avogadro.p; t = lawState.avogadro.t; } else { n = parseFloat(avogadroMolesSlider.value); p = parseFloat(avogadroPressureInput.value); t = parseFloat(avogadroTempInput.value); } n = Math.max(nMin, Math.min(nMax, n)); v = (n * R * t) / p; lawState.avogadro = { n, v, p, t }; avogadroMolesValue.textContent = `${n.toFixed(2)} mol`; avogadroVolumeValue.textContent = `${v.toFixed(1)} L`; avogadroConstantDisplay.textContent = v > 0 && n > 0 ? (v / n).toFixed(1) : 'N/A'; const minV = (nMin * R * t) / p, maxV = (nMax * R * t) / p; let normV = .5; if (maxV > minV && maxV > 0) normV = Math.max(0, Math.min(1, (v - minV) / (maxV - minV))); const pistonH = (1 - normV) * 100; avogadroPiston.style.height = `${Math.max(5, Math.min(95, pistonH))}%`; avogadroContainer.style.backgroundColor = getTemperatureColor(t); updateParticles('avogadro', n, t); const curveData = []; for (let i = 0; i <= 50; i++) { const moles = nMin + (i / 50) * (nMax - nMin); if (moles > 0) { const vol = (moles * R * t) / p; if (vol >= 0) curveData.push({ x: moles, y: vol }); } } updateChart(avogadroChart, curveData, { x: n, y: v }); }
+                
+                lawState.boyle = { v: parseFloat(boyleVolumeSlider.value), t: parseFloat(boyleTempInput.value), n: parseFloat(boyleMolesInput.value), p: 0 };
+                lawState.charles = { t: parseFloat(charlesTempSlider.value), p: parseFloat(charlesPressureInput.value), n: parseFloat(charlesMolesInput.value), v: 0 };
+                lawState.avogadro = { n: parseFloat(avogadroMolesSlider.value), p: parseFloat(avogadroPressureInput.value), t: parseFloat(avogadroTempInput.value), v: 0 };
+                
+                boyleChart = createChart(boyleChartCtx, 'line', 'Volumen (L)', 'Presión (atm)');
+                charlesChart = createChart(charlesChartCtx, 'line', 'Temperatura (K)', 'Volumen (L)');
+                avogadroChart = createChart(avogadroChartCtx, 'line', 'Moles (mol)', 'Volumen (L)');
+                
+                boyleVolumeSlider.addEventListener('input', () => updateBoyle('slider_v'));
+                addDebouncedListener(boyleTempInput, 'input', () => updateBoyle('input_t'));
+                addDebouncedListener(boyleMolesInput, 'input', () => updateBoyle('input_n'));
+                
+                charlesTempSlider.addEventListener('input', () => updateCharles('slider'));
+                addDebouncedListener(charlesPressureInput, 'input', () => updateCharles('input_p'));
+                addDebouncedListener(charlesMolesInput, 'input', () => updateCharles('input_n'));
+                
+                avogadroMolesSlider.addEventListener('input', () => updateAvogadro('slider'));
+                addDebouncedListener(avogadroPressureInput, 'input', () => updateAvogadro('input_p'));
+                addDebouncedListener(avogadroTempInput, 'input', () => updateAvogadro('input_t'));
+                
+                updateBoyle('init'); updateCharles('init'); updateAvogadro('init');
+                if(!animationFrameId) animateParticles();
+            }
 
-            const curveData = [];
-            const numPoints = 50;
-             for (let i = 0; i <= numPoints; i++) {
-                const temp = tMin + (i / numPoints) * (tMax - tMin);
-                if (temp > 0) {
-                    const vol = (n * R * temp) / p;
-                    if (vol >= 0) {
-                       curveData.push({ x: temp, y: vol });
+            // --- 4c. Applet de Linearización de Boyle (SECCIÓN AÑADIDA) ---
+            function setupBoyleLinearApplet() {
+                const boyleLinearChartCtx = document.getElementById('boyle-linear-chart').getContext('2d');
+                boyleLinearChart = new Chart(boyleLinearChartCtx, { type: 'scatter', data: { datasets: [{ label: 'Relación Lineal', data: [], borderColor: 'rgb(22, 163, 74)', borderWidth: 2, showLine: true, pointRadius: 0 }, { label: 'Actual', data: [], backgroundColor: 'rgb(239, 68, 68)', pointRadius: 6, pointHoverRadius: 8 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { x: { type: 'linear', position: 'bottom', title: { display: true, text: '1 / Volumen (1/L)' } }, y: { title: { display: true, text: 'Presión (atm)' }, beginAtZero: true } }, animation: { duration: 0 } } });
+                updateBoyleLinearChart(); // Actualiza con los datos actuales de Boyle
+            }
+
+            function updateBoyleLinearChart() {
+                if (!boyleLinearChart || !lawState.boyle.n) return; // No hacer nada si el gráfico no está inicializado o no hay datos
+                const { n, t } = lawState.boyle;
+                const vMin = 1.0, vMax = 10.0;
+                const pMax = (n * R * t) / vMin;
+
+                const lineData = [];
+                for (let i = 0; i <= 50; i++) {
+                    const v = vMin + (i / 50) * (vMax - vMin);
+                    if (v > 0) {
+                        const p = (n * R * t) / v;
+                        lineData.push({ x: 1 / v, y: p });
                     }
                 }
+                const currentPoint = { x: 1 / lawState.boyle.v, y: lawState.boyle.p };
+                updateChart(boyleLinearChart, lineData, currentPoint);
             }
-            updateChart(charlesChart, curveData, { x: t, y: v });
-        }
-
-        function updateAvogadro(source = 'slider') {
-             let { n, v, p, t } = state.avogadro;
-             const nMin = parseFloat(avogadroMolesSlider.min);
-             const nMax = parseFloat(avogadroMolesSlider.max);
-
-             if (source === 'input_p' || source === 'input_t') {
-                 p = parseFloat(avogadroPressureInput.value) || state.avogadro.p;
-                 t = parseFloat(avogadroTempInput.value) || state.avogadro.t;
-                 p = Math.max(0.01, p);
-                 t = Math.max(1, t);
-                 avogadroPressureInput.value = p;
-                 avogadroTempInput.value = t;
-                 n = parseFloat(avogadroMolesSlider.value);
-             } else if (source === 'slider') {
-                 n = parseFloat(avogadroMolesSlider.value);
-                 p = state.avogadro.p;
-                 t = state.avogadro.t;
-             } else { // Init
-                 n = parseFloat(avogadroMolesSlider.value);
-                 p = parseFloat(avogadroPressureInput.value);
-                 t = parseFloat(avogadroTempInput.value);
-             }
-
-             n = Math.max(nMin, Math.min(nMax, n));
-             v = (n * R * t) / p;
-
-             state.avogadro = { n, v, p, t };
-
-            avogadroMolesValue.textContent = `${n.toFixed(2)} mol`;
-            avogadroVolumeValue.textContent = `${v.toFixed(1)} L`;
-            avogadroConstantDisplay.textContent = v > 0 && n > 0 ? (v / n).toFixed(1) : 'N/A';
-
-            const minVisualV = (nMin * R * t) / p;
-            const maxVisualV = (nMax * R * t) / p;
-            let normalizedVolume = 0.5;
-            if (maxVisualV > minVisualV && maxVisualV > 0) {
-               normalizedVolume = Math.max(0, Math.min(1, (v - minVisualV) / (maxVisualV - minVisualV)));
+            
+            // --- 4d. Applet de Dalton ---
+            function setupDaltonApplet(slideElement) {
+                const molesA_slider = slideElement.querySelector('#dalton-moles-a'), molesA_value = slideElement.querySelector('#dalton-moles-a-value'); const molesB_slider = slideElement.querySelector('#dalton-moles-b'), molesB_value = slideElement.querySelector('#dalton-moles-b-value'); const volumeInput = slideElement.querySelector('#dalton-volume'), tempInput = slideElement.querySelector('#dalton-temp'); const pressureA_display = slideElement.querySelector('#dalton-pressure-a'), pressureB_display = slideElement.querySelector('#dalton-pressure-b'), pressureTotal_display = slideElement.querySelector('#dalton-pressure-total'); const fractionA_display = slideElement.querySelector('#dalton-fraction-a'), fractionB_display = slideElement.querySelector('#dalton-fraction-b'); const container = slideElement.querySelector('#dalton-container'); const daltonChartCtx = slideElement.querySelector('#dalton-chart').getContext('2d');
+                let daltonChart; function createDaltonChart() { return new Chart(daltonChartCtx, { type: 'bar', data: { labels: ['Presión Total'], datasets: [{ label: 'Gas A', data: [0], backgroundColor: 'rgba(14, 165, 233, 0.7)', borderColor: 'rgba(22, 101, 140, 1)', borderWidth: 1 }, { label: 'Gas B', data: [0], backgroundColor: 'rgba(249, 115, 22, 0.7)', borderColor: 'rgba(194, 65, 12, 1)', borderWidth: 1 }] }, options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true, title: { display: true, text: 'Presión (atm)' } }, y: { stacked: true, display: false } }, plugins: { legend: { position: 'bottom' }, tooltip: { callbacks: { label: function(context) { let label = context.dataset.label || ''; if (label) { label += ': '; } if (context.parsed.x !== null) { label += `${context.parsed.x.toFixed(2)} atm`; } return label; } } } } } }); }
+                function updateDalton() { const nA = parseFloat(molesA_slider.value); const nB = parseFloat(molesB_slider.value); const V = parseFloat(volumeInput.value); const T = parseFloat(tempInput.value); if (isNaN(nA) || isNaN(nB) || isNaN(V) || isNaN(T) || V <= 0) return; const pA = (nA * R * T) / V; const pB = (nB * R * T) / V; const pTotal = pA + pB; const nTotal = nA + nB; const xA = nTotal > 0 ? nA / nTotal : 0; const xB = nTotal > 0 ? nB / nTotal : 0; molesA_value.textContent = `${nA.toFixed(2)} mol`; molesB_value.textContent = `${nB.toFixed(2)} mol`; pressureA_display.textContent = `${pA.toFixed(2)} atm`; pressureB_display.textContent = `${pB.toFixed(2)} atm`; pressureTotal_display.textContent = `${pTotal.toFixed(2)} atm`; fractionA_display.textContent = xA.toFixed(2); fractionB_display.textContent = xB.toFixed(2); daltonChart.data.datasets[0].data[0] = pA; daltonChart.data.datasets[1].data[0] = pB; daltonChart.update('none'); container.style.backgroundColor = getTemperatureColor(T); updateParticles('dalton', nA, T, nB); }
+                daltonChart = createDaltonChart(); [molesA_slider, molesB_slider, volumeInput, tempInput].forEach(el => el.addEventListener('input', updateDalton)); updateDalton();
             }
-            const pistonHeightPercentage = (1 - normalizedVolume) * 100;
-            avogadroPiston.style.height = `${Math.max(5, Math.min(95, pistonHeightPercentage))}%`;
 
-            avogadroContainer.style.backgroundColor = getTemperatureColor(t);
-            updateParticles('avogadro', n, t);
-
-            const curveData = [];
-            const numPoints = 50;
-             for (let i = 0; i <= numPoints; i++) {
-                const moles = nMin + (i / numPoints) * (nMax - nMin);
-                 if (moles > 0) {
-                    const vol = (moles * R * t) / p;
-                     if (vol >= 0) {
-                        curveData.push({ x: moles, y: vol });
+            // --- 5. SCRIPT CONTROLLER ---
+            function executeSlideSpecificScript(slideId) {
+                if (!slideScriptsExecuted[slideId]) {
+                    if (slideId === 'slide-applet') {
+                        setupGrahamApplet(document.getElementById(slideId));
+                    } else if (['boyle-applet', 'charles-applet', 'avogadro-applet'].includes(slideId)) {
+                        // Se inicializan todos juntos la primera vez que se encuentra uno de ellos
+                        if (!slideScriptsExecuted['main-laws-init']) {
+                            setupLawApplets();
+                            slideScriptsExecuted['main-laws-init'] = true;
+                        }
+                    } else if (slideId === 'boyle-linear-applet') { // <-- Caso añadido
+                        setupBoyleLinearApplet();
+                    } else if (slideId === 'dalton-applet') {
+                        setupDaltonApplet(document.getElementById(slideId));
                     }
-                 }
+                    slideScriptsExecuted[slideId] = true; // Marcar como ejecutado
+                }
             }
-            updateChart(avogadroChart, curveData, { x: n, y: v });
-        }
-
-
-        // --- Event Listeners ---
-        function addDebouncedListener(element, eventType, callback, delay = 50) {
-            let timeoutId;
-            element.addEventListener(eventType, (event) => {
-                clearTimeout(timeoutId);
-                timeoutId = setTimeout(() => {
-                    if (element.type === 'number' && !element.checkValidity()) {
-                        console.warn("Invalid number input:", element.value);
-                        element.value = Math.max(parseFloat(element.min) || 0, Math.min(parseFloat(element.max) || Infinity, parseFloat(element.value))) || element.defaultValue;
-                    }
-                    callback(event);
-                }, delay);
-            });
-        }
-
-        // Boyle Listeners
-        // REMOVED: boylePressureSlider listener
-        boyleVolumeSlider.addEventListener('input', () => updateBoyle('slider_v')); // Changed source identifier
-        addDebouncedListener(boyleTempInput, 'input', () => updateBoyle('input_t'));
-        addDebouncedListener(boyleMolesInput, 'input', () => updateBoyle('input_n'));
-
-        // Charles Listeners (No change)
-        charlesTempSlider.addEventListener('input', () => updateCharles('slider'));
-        addDebouncedListener(charlesPressureInput, 'input', () => updateCharles('input_p'));
-        addDebouncedListener(charlesMolesInput, 'input', () => updateCharles('input_n'));
-
-        // Avogadro Listeners (No change)
-        avogadroMolesSlider.addEventListener('input', () => updateAvogadro('slider'));
-        addDebouncedListener(avogadroPressureInput, 'input', () => updateAvogadro('input_p'));
-        addDebouncedListener(avogadroTempInput, 'input', () => updateAvogadro('input_t'));
-
-
-        // --- Initialization ---
-        function initialize() {
-            // Set initial state from HTML values
-            state.boyle = {
-                // p will be calculated in updateBoyle
-                v: parseFloat(boyleVolumeSlider.value),
-                t: parseFloat(boyleTempInput.value),
-                n: parseFloat(boyleMolesInput.value),
-                p: 0 // Placeholder, calculated below
-            };
-            state.charles = {
-                t: parseFloat(charlesTempSlider.value),
-                p: parseFloat(charlesPressureInput.value),
-                n: parseFloat(charlesMolesInput.value),
-                v: 0 // Will be calculated in updateCharles
-            };
-             state.avogadro = {
-                n: parseFloat(avogadroMolesSlider.value),
-                p: parseFloat(avogadroPressureInput.value),
-                t: parseFloat(avogadroTempInput.value),
-                v: 0 // Will be calculated in updateAvogadro
-            };
-
-
-            // Create Charts
-            boyleChart = createChart(boyleChartCtx, 'line', 'Volumen (L)', 'Presión (atm)');
-            charlesChart = createChart(charlesChartCtx, 'line', 'Temperatura (K)', 'Volumen (L)');
-            avogadroChart = createChart(avogadroChartCtx, 'line', 'Moles (mol)', 'Volumen (L)');
-
-            // Initial Updates to calculate dependent variables and draw everything
-            updateBoyle('init');
-            updateCharles('init');
-            updateAvogadro('init');
-
-            // Start animation loop
-            animateParticles();
-        }
-
-        // Ensure DOM is ready
-        document.addEventListener('DOMContentLoaded', initialize);
-
-        // Handle resize (Identical to v3)
-        window.addEventListener('resize', () => {
-            if (animationFrameId) {
-                cancelAnimationFrame(animationFrameId);
-            }
-            animateParticles();
+            
+            // --- 6. INITIAL CALL ---
+            showSlide(0); // Esto ahora funciona porque la función showSlide está definida
         });
-
     </script>
-
 </body>
+
 </html>
+
